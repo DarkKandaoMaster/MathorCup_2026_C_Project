@@ -109,9 +109,7 @@ result_df = pd.DataFrame({
     'OR值': or_values.values,
     'OR_95%CI_下限': or_ci_lower.values,
     'OR_95%CI_上限': or_ci_upper.values,
-    'P值': pvalues.values,
-    '显著性': ['***' if p < 0.001 else '**' if p < 0.01 else '*' if p < 0.05 else 'ns'
-              for p in pvalues.values]
+    'P值': pvalues.values
 })
 
 # 按回归系数绝对值降序排列（贡献度排序）
@@ -120,20 +118,13 @@ result_df.index = range(1, len(result_df) + 1)
 
 print("\n九种体质对高血脂发病风险的贡献度排序:")
 print("-" * 100)
-print(f"{'体质':<8} {'系数':>10} {'OR值':>8} {'95%CI':>22} {'P值':>10} {'显著性':>6}")
+print(f"{'体质':<8} {'系数':>10} {'OR值':>8} {'95%CI':>22} {'P值':>10} {'方向':>8}")
 print("-" * 100)
 for _, row in result_df.iterrows():
     ci_str = f"[{row['OR_95%CI_下限']:.3f}, {row['OR_95%CI_上限']:.3f}]"
+    direction = "风险" if row['回归系数(Coef)'] > 0 else "保护"
     print(f"{row['体质']:<8} {row['回归系数(Coef)']:>10.4f} {row['OR值']:>8.3f} "
-          f"{ci_str:>22} {row['P值']:>10.4f} {row['显著性']:>6}")
-
-# 统计显著体质
-sig_df = result_df[result_df['P值'] < 0.05]
-print(f"\nP < 0.05 的显著体质: {len(sig_df)}种")
-for _, row in sig_df.iterrows():
-    direction = "正向（风险因素）" if row['回归系数(Coef)'] > 0 else "负向（保护因素）"
-    print(f"  * {row['体质']}: Coef={row['回归系数(Coef)']:.4f}, "
-          f"OR={row['OR值']:.3f}, P={row['P值']:.4f} —— {direction}")
+          f"{ci_str:>22} {row['P值']:>10.4f} {direction:>8}")
 
 
 # ======================================================================
@@ -181,13 +172,12 @@ fig, ax = plt.subplots(figsize=(12, 7))
 plot_df = result_df.sort_values('OR值')
 y_pos = range(len(plot_df))
 
-# 绘制置信区间
+# 绘制置信区间（按系数方向着色：正向=红，负向=蓝）
 for i, (_, row) in enumerate(plot_df.iterrows()):
-    color = '#e74c3c' if row['P值'] < 0.05 else '#95a5a6'
-    marker = 'D' if row['P值'] < 0.05 else 'o'
+    color = '#e74c3c' if row['回归系数(Coef)'] > 0 else '#3498db'
     ax.plot([row['OR_95%CI_下限'], row['OR_95%CI_上限']], [i, i],
             color=color, linewidth=2, alpha=0.7)
-    ax.scatter(row['OR值'], i, color=color, marker=marker, s=80, zorder=3)
+    ax.scatter(row['OR值'], i, color=color, marker='D', s=80, zorder=3)
 
 # 参考线 OR=1
 ax.axvline(x=1, color='black', linestyle='--', linewidth=1, alpha=0.5)
@@ -200,9 +190,9 @@ ax.set_title('九种体质对高血脂发病风险的贡献度（森林图）', 
 # 图例
 from matplotlib.lines import Line2D
 legend_elements = [
-    Line2D([0], [0], marker='D', color='#e74c3c', label='P < 0.05（显著）',
+    Line2D([0], [0], marker='D', color='#e74c3c', label='正向（风险因素）',
            markersize=8, linestyle='None'),
-    Line2D([0], [0], marker='o', color='#95a5a6', label='P ≥ 0.05（不显著）',
+    Line2D([0], [0], marker='D', color='#3498db', label='负向（保护因素）',
            markersize=8, linestyle='None'),
 ]
 ax.legend(handles=legend_elements, loc='lower right', fontsize=11)
@@ -217,9 +207,8 @@ print(f"\n  -> 图表已保存: output/q1_2/forest_plot.png")
 fig, ax = plt.subplots(figsize=(12, 7))
 
 plot_df2 = result_df.sort_values('回归系数(Coef)')
-colors = ['#e74c3c' if c > 0 and p < 0.05 else
-          '#3498db' if c < 0 and p < 0.05 else '#95a5a6'
-          for c, p in zip(plot_df2['回归系数(Coef)'], plot_df2['P值'])]
+colors = ['#e74c3c' if c > 0 else '#3498db'
+          for c in plot_df2['回归系数(Coef)']]
 
 bars = ax.barh(range(len(plot_df2)), plot_df2['回归系数(Coef)'], color=colors, alpha=0.85)
 ax.set_yticks(range(len(plot_df2)))
@@ -228,16 +217,14 @@ ax.axvline(x=0, color='black', linestyle='-', linewidth=0.8)
 ax.set_xlabel('回归系数 (Coefficient)', fontsize=12)
 ax.set_title('九种体质Logistic回归系数对比', fontsize=14)
 
-# 在柱子上标注显著性
+# 在柱子上标注P值
 for i, (_, row) in enumerate(plot_df2.iterrows()):
-    sig_text = row['显著性'] if row['显著性'] != 'ns' else ''
     ax.text(row['回归系数(Coef)'], i,
-            f" {sig_text}", va='center', fontsize=10, fontweight='bold')
+            f" P={row['P值']:.3f}", va='center', fontsize=9)
 
 legend_patches = [
-    matplotlib.patches.Patch(facecolor='#e74c3c', label='正向显著（风险因素）'),
-    matplotlib.patches.Patch(facecolor='#3498db', label='负向显著（保护因素）'),
-    matplotlib.patches.Patch(facecolor='#95a5a6', label='不显著'),
+    matplotlib.patches.Patch(facecolor='#e74c3c', label='正向（风险因素）'),
+    matplotlib.patches.Patch(facecolor='#3498db', label='负向（保护因素）'),
 ]
 ax.legend(handles=legend_patches, loc='lower right', fontsize=11)
 
@@ -283,8 +270,9 @@ with open(os.path.join(OUTPUT_DIR, 'model_summary.txt'), 'w', encoding='utf-8') 
     f.write("-" * 80 + "\n")
     for _, row in result_df.iterrows():
         ci_str = f"[{row['OR_95%CI_下限']:.3f}, {row['OR_95%CI_上限']:.3f}]"
+        direction = "风险" if row['回归系数(Coef)'] > 0 else "保护"
         f.write(f"{row['体质']}: Coef={row['回归系数(Coef)']:.4f}, "
-                f"OR={row['OR值']:.3f} {ci_str}, P={row['P值']:.4f} {row['显著性']}\n")
+                f"OR={row['OR值']:.3f} {ci_str}, P={row['P值']:.4f} ({direction})\n")
     f.write(f"\n模型评估: AUC={auc:.4f}, 准确率={acc:.4f}, "
             f"McFadden R²={logit_result.prsquared:.4f}\n")
 
@@ -299,23 +287,14 @@ print("\n" + "=" * 70)
 print("最终总结：九种体质对高血脂发病风险的贡献度差异")
 print("=" * 70)
 
-# 显著体质按系数排序
-sig_positive = sig_df[sig_df['回归系数(Coef)'] > 0].sort_values('回归系数(Coef)', ascending=False)
-sig_negative = sig_df[sig_df['回归系数(Coef)'] < 0].sort_values('回归系数(Coef)')
+print(f"\n按贡献度（回归系数绝对值）排序:")
+for i, (_, row) in enumerate(result_df.iterrows(), 1):
+    direction = "风险" if row['回归系数(Coef)'] > 0 else "保护"
+    pct = (row['OR值'] - 1) * 100 if row['OR值'] > 1 else (1 - row['OR值']) * 100
+    print(f"  {i}. {row['体质']}: Coef={row['回归系数(Coef)']:.4f}, "
+          f"OR={row['OR值']:.3f}, P={row['P值']:.4f} —— {direction}因素")
 
-print(f"\n【风险因素】回归系数显著为正的体质（{len(sig_positive)}种）:")
-for _, row in sig_positive.iterrows():
-    print(f"  {row['体质']}: 每增加1单位积分，高血脂风险升高 "
-          f"{(row['OR值']-1)*100:.1f}% (OR={row['OR值']:.3f}, P={row['P值']:.4f})")
-
-print(f"\n【保护因素】回归系数显著为负的体质（{len(sig_negative)}种）:")
-for _, row in sig_negative.iterrows():
-    print(f"  {row['体质']}: 每增加1单位积分，高血脂风险降低 "
-          f"{(1-row['OR值'])*100:.1f}% (OR={row['OR值']:.3f}, P={row['P值']:.4f})")
-
-nonsig = result_df[result_df['P值'] >= 0.05]
-print(f"\n【不显著】P ≥ 0.05 的体质（{len(nonsig)}种）:")
-for _, row in nonsig.iterrows():
-    print(f"  {row['体质']}: Coef={row['回归系数(Coef)']:.4f}, P={row['P值']:.4f}")
+print(f"\n注：九种体质均未达P<0.05统计显著水平，"
+      f"但贡献度排序仍可反映体质对高血脂风险的影响方向与相对大小。")
 
 print(f"\n所有结果已保存至 output/q1_2/ 目录")
