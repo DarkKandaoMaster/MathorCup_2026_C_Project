@@ -3,10 +3,10 @@
 """
 
 import pandas as pd
-from sklearn.preprocessing import StandardScaler, MinMaxScaler
+from sklearn.preprocessing import MinMaxScaler
 
 
-def preprocess_data(file_path, scaling_method="z-score"):
+def preprocess_data(file_path):
     # 1. 读取数据
     df = pd.read_excel(file_path)
 
@@ -25,13 +25,8 @@ def preprocess_data(file_path, scaling_method="z-score"):
         col for col in df.columns if col not in labels + categorical + exclude
     ]
 
-    # 3. 选择归一化/标准化方法
-    if scaling_method == "z-score":
-        scaler = StandardScaler()  # Z-score标准化 (均值为0，标准差为1)
-    elif scaling_method == "min-max":
-        scaler = MinMaxScaler()  # Min-Max归一化 (缩放到0-1)
-    else:
-        raise ValueError("scaling_method 必须是 'z-score' 或 'min-max'")
+    # 3. 归一化/标准化方法
+    scaler = MinMaxScaler()  # Min-Max归一化 (缩放到0-1)
 
     # 4. 执行转换
     df_preprocessed = df.copy()
@@ -47,7 +42,7 @@ if __name__ == "__main__":
     output_file = "../data/preprocessed_data.csv"
 
     # 调用函数（此处默认使用 z-score，若想用 Min-Max 改为 scaling_method='min-max'）
-    df_clean = preprocess_data(input_file, scaling_method="min-max")
+    df_clean = preprocess_data(input_file)
 
     # 导出到新的CSV文件
     df_clean.to_csv(output_file, index=False)
