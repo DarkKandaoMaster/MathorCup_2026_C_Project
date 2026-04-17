@@ -25,7 +25,7 @@ def preprocess_data(file_path):
         col for col in df.columns if col not in labels + categorical + exclude
     ]
 
-    # 3. 归一化/标准化方法
+    # 3. 归一化
     scaler = MinMaxScaler()  # Min-Max归一化 (缩放到0-1)
 
     # 4. 执行转换
