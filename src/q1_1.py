@@ -16,7 +16,7 @@ import matplotlib.pyplot as plt
 import matplotlib
 import os
 
-from sklearn.linear_model import LassoCV, lasso_path
+from sklearn.linear_model import LassoCV, Lasso, lasso_path
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.model_selection import cross_val_score, StratifiedKFold
 
@@ -73,23 +73,58 @@ print("\n" + "=" * 70)
 print("Part 1: LASSO回归 —— 痰湿体质严重程度关键指标筛选")
 print("=" * 70)
 
-# 5折交叉验证选择最优正则化参数alpha
+# --- 1.1 使用LassoCV交叉验证选择最优alpha ---
 lasso_cv = LassoCV(cv=5, random_state=42, alphas=100, max_iter=10000)
 lasso_cv.fit(X, y_reg)
 
-print(f"最优alpha: {lasso_cv.alpha_:.6f}")
-print(f"交叉验证MSE: {lasso_cv.mse_path_.mean():.6f}")
+print(f"[最小MSE准则] 最优alpha = {lasso_cv.alpha_:.6f}")
+print(f"交叉验证MSE = {lasso_cv.mse_path_.mean():.6f}")
 
-# 非零系数 = 被选中的关键指标
-lasso_coefs = pd.Series(lasso_cv.coef_, index=all_features)
+lasso_coefs_cv = pd.Series(lasso_cv.coef_, index=all_features)
+n_selected_cv = (lasso_coefs_cv != 0).sum()
+print(f"选中特征数 = {n_selected_cv}")
+
+# --- 1.2 1-SE规则：选择更简练的模型 ---
+# 在交叉验证MSE曲线中，找到距离最优MSE一个标准误以内最大的alpha
+mean_mse = lasso_cv.mse_path_.mean(axis=1)
+std_mse = lasso_cv.mse_path_.std(axis=1) / np.sqrt(5)  # 标准误
+best_idx = np.argmin(mean_mse)
+threshold = mean_mse[best_idx] + std_mse[best_idx]
+# 找到MSE在该阈值之内、alpha最大的点（即模型最简的点）
+se1_idx = np.where(mean_mse <= threshold)[0][-1]
+alpha_1se = lasso_cv.alphas_[se1_idx]
+
+print(f"\n[1-SE准则] alpha = {alpha_1se:.6f}")
+
+lasso_1se = Lasso(alpha=alpha_1se, max_iter=10000, random_state=42)
+lasso_1se.fit(X, y_reg)
+lasso_coefs_1se = pd.Series(lasso_1se.coef_, index=all_features)
+n_selected_1se = (lasso_coefs_1se != 0).sum()
+print(f"选中特征数 = {n_selected_1se}")
+
+# --- 1.3 宽松准则：使用最优alpha的1/10，保留更多潜在关联指标 ---
+alpha_relaxed = lasso_cv.alpha_ * 0.1
+lasso_relaxed = Lasso(alpha=alpha_relaxed, max_iter=10000, random_state=42)
+lasso_relaxed.fit(X, y_reg)
+lasso_coefs_relaxed = pd.Series(lasso_relaxed.coef_, index=all_features)
+n_selected_relaxed = (lasso_coefs_relaxed != 0).sum()
+print(f"\n[宽松准则 alpha*0.1] alpha = {alpha_relaxed:.6f}")
+print(f"选中特征数 = {n_selected_relaxed}")
+
+# --- 选用宽松准则的结果作为主要输出（保留更多有价值的指标）---
+lasso_coefs = lasso_coefs_relaxed
 selected_lasso = lasso_coefs[lasso_coefs != 0].sort_values(key=abs, ascending=False)
 
-print(f"\nLASSO筛选出 {len(selected_lasso)} 个非零系数特征:")
+# 计算R²
+r2_relaxed = 1 - np.sum((y_reg - lasso_relaxed.predict(X))**2) / np.sum((y_reg - y_reg.mean())**2)
+print(f"\n宽松准则模型 R² = {r2_relaxed:.4f}")
+
+print(f"\nLASSO筛选出 {len(selected_lasso)} 个非零系数特征（宽松准则）:")
 for feat, coef in selected_lasso.items():
     cat = "血常规" if feat in blood_indicators else \
           "活动量表" if feat in activity_scores else "控制变量"
-    direction = "正" if coef > 0 else "负"
-    print(f"  {feat} ({cat}): {direction}向, 系数 = {coef:.6f}")
+    direction = "正向" if coef > 0 else "负向"
+    print(f"  {feat} ({cat}): {direction}, 系数 = {coef:.6f}")
 
 
 # ---------- 绘图: LASSO结果 ----------
@@ -117,18 +152,22 @@ alphas_path, coefs_path, _ = lasso_path(X, y_reg, n_alphas=100, max_iter=10000)
 for i, feat in enumerate(all_features):
     color = '#e74c3c' if feat in blood_indicators else \
             '#3498db' if feat in activity_scores else '#95a5a6'
-    ax2.plot(-np.log10(alphas_path), coefs_path[i], label=feat, color=color, alpha=0.7)
+    lw = 2.0 if lasso_coefs[feat] != 0 else 0.8
+    ax2.plot(-np.log10(alphas_path), coefs_path[i], label=feat,
+             color=color, alpha=0.7, linewidth=lw)
 ax2.axvline(x=-np.log10(lasso_cv.alpha_), color='red', linestyle='--',
-            label=f'最优α={lasso_cv.alpha_:.4f}')
+            label=f'CV最优alpha={lasso_cv.alpha_:.4f}')
+ax2.axvline(x=-np.log10(alpha_relaxed), color='orange', linestyle='--',
+            label=f'宽松alpha={alpha_relaxed:.4f}')
 ax2.set_title('LASSO正则化路径', fontsize=14)
-ax2.set_xlabel('-log₁₀(α)')
+ax2.set_xlabel('-log10(alpha)')
 ax2.set_ylabel('系数值')
-ax2.legend(fontsize=6, ncol=2, loc='best')
+ax2.legend(fontsize=5, ncol=3, loc='best')
 
 plt.tight_layout()
 plt.savefig(os.path.join(OUTPUT_DIR, 'lasso_results.png'), dpi=300, bbox_inches='tight')
 plt.close()
-print(f"  → 图表已保存: output/q1_1/lasso_results.png")
+print(f"\n  -> 图表已保存: output/q1_1/lasso_results.png")
 
 
 # ======================================================================
@@ -147,7 +186,9 @@ rf = RandomForestClassifier(
 # 5折分层交叉验证评估
 cv = StratifiedKFold(n_splits=5, shuffle=True, random_state=42)
 cv_auc = cross_val_score(rf, X, y_cls, cv=cv, scoring='roc_auc')
-print(f"5折交叉验证AUC: {cv_auc.mean():.4f} ± {cv_auc.std():.4f}")
+cv_acc = cross_val_score(rf, X, y_cls, cv=cv, scoring='accuracy')
+print(f"5折交叉验证 AUC: {cv_auc.mean():.4f} +/- {cv_auc.std():.4f}")
+print(f"5折交叉验证 ACC: {cv_acc.mean():.4f} +/- {cv_acc.std():.4f}")
 
 # 训练最终模型
 rf.fit(X, y_cls)
@@ -156,11 +197,19 @@ rf.fit(X, y_cls)
 rf_importances = pd.Series(rf.feature_importances_, index=all_features)
 rf_importances = rf_importances.sort_values(ascending=False)
 
+# 找到达到80%累积重要性的特征数
+cumsum = rf_importances.cumsum()
+n_top80 = (cumsum <= 0.80).sum() + 1
+n_top95 = (cumsum <= 0.95).sum() + 1
+
 print(f"\n随机森林特征重要性排序:")
 for i, (feat, imp) in enumerate(rf_importances.items(), 1):
     cat = "血常规" if feat in blood_indicators else \
           "活动量表" if feat in activity_scores else "控制变量"
     print(f"  [{i:2d}] {feat} ({cat}): 重要性 = {imp:.4f}")
+
+print(f"\n前{n_top80}个特征达到80%累积重要性")
+print(f"前{n_top95}个特征达到95%累积重要性")
 
 
 # ---------- 绘图: RF结果 ----------
@@ -178,21 +227,20 @@ ax1.legend(handles=legend_patches, loc='lower right')
 
 # (2b) 累积重要性
 ax2 = axes[1]
-cumulative = rf_importances.cumsum()
-ax2.plot(range(1, len(cumulative) + 1), cumulative.values, 'bo-', markersize=5)
+ax2.plot(range(1, len(cumsum) + 1), cumsum.values, 'bo-', markersize=5)
 ax2.axhline(y=0.80, color='red', linestyle='--', alpha=0.7, label='80%累积阈值')
 ax2.axhline(y=0.95, color='green', linestyle='--', alpha=0.7, label='95%累积阈值')
 ax2.set_title('特征累积重要性', fontsize=14)
 ax2.set_xlabel('特征数量（按重要性降序）')
 ax2.set_ylabel('累积重要性')
-ax2.set_xticks(range(1, len(cumulative) + 1))
+ax2.set_xticks(range(1, len(cumsum) + 1))
 ax2.set_xticklabels(rf_importances.index, rotation=60, ha='right', fontsize=7)
 ax2.legend()
 
 plt.tight_layout()
 plt.savefig(os.path.join(OUTPUT_DIR, 'rf_results.png'), dpi=300, bbox_inches='tight')
 plt.close()
-print(f"  → 图表已保存: output/q1_1/rf_results.png")
+print(f"\n  -> 图表已保存: output/q1_1/rf_results.png")
 
 
 # ======================================================================
@@ -210,12 +258,12 @@ combined['类别'] = ['血常规' if f in blood_indicators else
 
 # LASSO归一化重要性（绝对值归一化到0-1）
 lasso_abs = lasso_coefs.abs()
-combined['LASSO系数(绝对值)'] = lasso_abs
-combined['LASSO归一化'] = lasso_abs / lasso_abs.sum()
+combined['LASSO系数_绝对值'] = lasso_abs.values
+combined['LASSO归一化'] = (lasso_abs / lasso_abs.sum()).values
 
 # RF归一化重要性
-combined['RF重要性'] = rf_importances
-combined['RF归一化'] = rf_importances / rf_importances.sum()
+combined['RF重要性'] = rf_importances.loc[all_features].values
+combined['RF归一化'] = (rf_importances / rf_importances.sum()).loc[all_features].values
 
 # 综合得分 = 两种方法归一化重要性之和
 combined['综合得分'] = combined['LASSO归一化'] + combined['RF归一化']
@@ -226,7 +274,7 @@ screening_result = combined[combined['类别'] != '控制变量']
 
 print("\n待筛选指标综合排序:")
 for i, (feat, row) in enumerate(screening_result.iterrows(), 1):
-    lasso_mark = "✓" if row['LASSO系数(绝对值)'] > 0 else "✗"
+    lasso_mark = "Y" if row['LASSO系数_绝对值'] > 0 else "N"
     print(f"  [{i:2d}] {feat} ({row['类别']}): "
           f"综合={row['综合得分']:.4f}, "
           f"LASSO={lasso_mark}(归一化{row['LASSO归一化']:.4f}), "
@@ -235,13 +283,13 @@ for i, (feat, row) in enumerate(screening_result.iterrows(), 1):
 
 # ---------- 绘图: 综合分析 ----------
 fig, ax = plt.subplots(figsize=(14, 8))
-key_data = screening_result.copy()
+key_data = screening_result
 x = np.arange(len(key_data))
 width = 0.35
 
 bars1 = ax.bar(x - width/2, key_data['LASSO归一化'], width,
                label='LASSO归一化重要性', color='#e74c3c', alpha=0.8)
-bars2 = ax.bar(x + width/2, key_data['RF归一化重要性'], width,
+bars2 = ax.bar(x + width/2, key_data['RF归一化'], width,
                label='随机森林归一化重要性', color='#3498db', alpha=0.8)
 
 ax.set_title('关键指标综合分析（LASSO + 随机森林）', fontsize=14)
@@ -253,19 +301,22 @@ ax.legend(fontsize=11)
 plt.tight_layout()
 plt.savefig(os.path.join(OUTPUT_DIR, 'combined_results.png'), dpi=300, bbox_inches='tight')
 plt.close()
-print(f"\n  → 图表已保存: output/q1_1/combined_results.png")
+print(f"\n  -> 图表已保存: output/q1_1/combined_results.png")
 
 
 # ======================================================================
 # 保存所有结果到CSV
 # ======================================================================
-# LASSO系数表
+# LASSO系数表（含三种准则对比）
 lasso_df = pd.DataFrame({
     '特征': all_features,
     '类别': combined.loc[all_features, '类别'].values,
-    'LASSO系数': lasso_cv.coef_,
-    'LASSO系数(绝对值)': np.abs(lasso_cv.coef_),
-    '是否入选': lasso_cv.coef_ != 0
+    'LASSO_CV系数': lasso_coefs_cv.values,
+    'LASSO_CV是否入选': lasso_coefs_cv.values != 0,
+    'LASSO_1SE系数': lasso_coefs_1se.values,
+    'LASSO_1SE是否入选': lasso_coefs_1se.values != 0,
+    'LASSO_宽松系数': lasso_coefs_relaxed.values,
+    'LASSO_宽松是否入选': lasso_coefs_relaxed.values != 0,
 })
 lasso_df.to_csv(os.path.join(OUTPUT_DIR, 'lasso_coefficients.csv'),
                 index=False, encoding='utf-8-sig')
@@ -289,7 +340,7 @@ combined.to_csv(os.path.join(OUTPUT_DIR, 'combined_analysis.csv'),
 # 最终总结
 # ======================================================================
 print("\n" + "=" * 70)
-print("★ 最终总结：筛选出的关键指标")
+print("最终总结：筛选出的关键指标")
 print("=" * 70)
 
 # LASSO选出的（仅血常规+活动量表）
@@ -300,19 +351,19 @@ rf_top_n = rf_screening[:10]
 # 两种方法共同选中
 both_key = [f for f in lasso_key if f in rf_top_n]
 
-print(f"\n【LASSO筛选】痰湿体质关键指标（{len(lasso_key)}个）:")
+print(f"\n[LASSO筛选] 痰湿体质关键指标（{len(lasso_key)}个）:")
 for f in lasso_key:
     cat = "血常规" if f in blood_indicators else "活动量表"
-    print(f"  · {f} ({cat})")
+    print(f"  - {f} ({cat})")
 
-print(f"\n【随机森林】高血脂预警Top10指标（{len(rf_top_n)}个）:")
+print(f"\n[随机森林] 高血脂预警Top10指标（{len(rf_top_n)}个）:")
 for f in rf_top_n:
     cat = "血常规" if f in blood_indicators else "活动量表"
-    print(f"  · {f} ({cat})")
+    print(f"  - {f} ({cat})")
 
-print(f"\n【综合】两种方法共同选中的关键指标（{len(both_key)}个）:")
+print(f"\n[综合] 两种方法共同选中的关键指标（{len(both_key)}个）:")
 for f in both_key:
     cat = "血常规" if f in blood_indicators else "活动量表"
-    print(f"  ★ {f} ({cat})")
+    print(f"  * {f} ({cat})")
 
 print(f"\n所有结果已保存至 output/q1_1/ 目录")
