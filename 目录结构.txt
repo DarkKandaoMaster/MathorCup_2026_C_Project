@@ -1,5 +1,8 @@
 MathorCup_2026_C_Project/
 ├── data/                      # 数据存放目录（存放原始数据、处理后的数据）
+│   ├── 2026年第十六届MathorCup数学应用挑战赛题目—C题.pdf
+│   ├── 附件1：样例数据.xlsx    # 原始数据
+│   └── preprocessed_data.csv  # 处理后的数据
 ├── src/                       # 源代码目录
 │   ├── utils.py               # 通用工具模块
 │   ├── q1_1.py                # 问题1第一小问
