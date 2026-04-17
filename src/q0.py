@@ -26,7 +26,7 @@ def preprocess_data(file_path):
     ]
 
     # 3. 归一化
-    scaler = MinMaxScaler()  # Min-Max归一化 (缩放到0-1)
+    scaler = MinMaxScaler()  # Min-Max归一化（缩放到0-1）
 
     # 4. 执行转换
     df_preprocessed = df.copy()
