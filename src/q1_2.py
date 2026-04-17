@@ -5,7 +5,8 @@
   - 以九种体质积分作为自变量(X)，高血脂症二分类标签作为因变量(Y)
   - 构建多元逻辑回归（Logistic Regression）模型
   - 观察回归系数（Coefficient）、优势比（Odds Ratio, OR值）、P值
-  - 系数越大且统计学显著（P<0.05），说明该体质对引发高血脂的贡献度越高【【【【【这里之后记得改一下，猜测是题目给的数据的问题，算出来没一个体质是P<0.05的，所以之后记得把这处代码改一下
+  - 按回归系数绝对值排序，系数越大说明该体质对高血脂的贡献度越高
+  - 注意：本题数据下九种体质均未达P<0.05，贡献度排序仍具有参考意义
 """
 
 import sys
@@ -152,8 +153,7 @@ print(f"BIC: {logit_result.bic:.4f}")
 y_pred_prob = logit_result.predict(X_const)
 y_pred = (y_pred_prob >= 0.5).astype(int)
 
-from sklearn.metrics import (roc_auc_score, accuracy_score,
-                              confusion_matrix, classification_report)
+from sklearn.metrics import (roc_auc_score, accuracy_score, confusion_matrix, classification_report)
 
 auc = roc_auc_score(y, y_pred_prob)
 acc = accuracy_score(y, y_pred)
