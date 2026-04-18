@@ -1,4 +1,6 @@
-"""问题3：痰湿体质患者6个月干预方案优化"""
+"""
+问题3：痰湿体质患者6个月干预方案优化
+"""
 
 import sys
 sys.stdout.reconfigure(encoding='utf-8')
