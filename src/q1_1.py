@@ -337,6 +337,80 @@ combined.to_csv(os.path.join(OUTPUT_DIR, 'combined_analysis.csv'),
 
 
 # ======================================================================
+# 保存关键结果摘要到 TXT
+# ======================================================================
+with open(os.path.join(OUTPUT_DIR, 'summary.txt'), 'w', encoding='utf-8') as f:
+    f.write("问题1-1：关键指标筛选 —— 结果摘要\n")
+    f.write("=" * 70 + "\n\n")
+
+    # Part 1: LASSO
+    f.write("一、LASSO回归 —— 痰湿体质严重程度关键指标筛选\n")
+    f.write("-" * 50 + "\n")
+    f.write(f"CV最优alpha = {lasso_cv.alpha_:.6f}, 交叉验证MSE = {lasso_cv.mse_path_.mean():.6f}\n")
+    f.write(f"  最小MSE准则: alpha={lasso_cv.alpha_:.6f}, 选中{n_selected_cv}个特征\n")
+    f.write(f"  1-SE准则:    alpha={alpha_1se:.6f}, 选中{n_selected_1se}个特征\n")
+    f.write(f"  宽松准则:    alpha={alpha_relaxed:.6f}, 选中{n_selected_relaxed}个特征\n")
+    f.write(f"  宽松准则模型 R² = {r2_relaxed:.4f}\n\n")
+
+    f.write(f"LASSO筛选出 {len(selected_lasso)} 个非零系数特征（宽松准则）:\n")
+    for feat, coef in selected_lasso.items():
+        cat = "血常规" if feat in blood_indicators else \
+              "活动量表" if feat in activity_scores else "控制变量"
+        direction = "正向" if coef > 0 else "负向"
+        f.write(f"  {feat} ({cat}): {direction}, 系数 = {coef:.6f}\n")
+    f.write("\n")
+
+    # Part 2: RF
+    f.write("二、随机森林分类 —— 高血脂发病风险关键指标筛选\n")
+    f.write("-" * 50 + "\n")
+    f.write(f"5折交叉验证 AUC: {cv_auc.mean():.4f} ± {cv_auc.std():.4f}\n")
+    f.write(f"5折交叉验证 ACC: {cv_acc.mean():.4f} ± {cv_acc.std():.4f}\n\n")
+
+    f.write("随机森林特征重要性排序:\n")
+    for i, (feat, imp) in enumerate(rf_importances.items(), 1):
+        cat = "血常规" if feat in blood_indicators else \
+              "活动量表" if feat in activity_scores else "控制变量"
+        f.write(f"  [{i:2d}] {feat} ({cat}): 重要性 = {imp:.4f}\n")
+    f.write(f"\n前{n_top80}个特征达到80%累积重要性\n")
+    f.write(f"前{n_top95}个特征达到95%累积重要性\n\n")
+
+    # Part 3: 综合
+    f.write("三、综合分析 —— 同时表征痰湿体质 & 预警高血脂的关键指标\n")
+    f.write("-" * 50 + "\n")
+    f.write("待筛选指标综合排序:\n")
+    for i, (feat, row) in enumerate(screening_result.iterrows(), 1):
+        lasso_mark = "Y" if row['LASSO系数_绝对值'] > 0 else "N"
+        f.write(f"  [{i:2d}] {feat} ({row['类别']}): "
+                f"综合={row['综合得分']:.4f}, "
+                f"LASSO={lasso_mark}(归一化{row['LASSO归一化']:.4f}), "
+                f"RF归一化={row['RF归一化']:.4f}\n")
+    f.write("\n")
+
+    # 最终结论
+    lasso_key = [feat for feat in selected_lasso.index if feat in screening_features]
+    rf_screening = [feat for feat in rf_importances.index if feat in screening_features]
+    rf_top_n = rf_screening[:10]
+    both_key = [feat for feat in lasso_key if feat in rf_top_n]
+
+    f.write("四、最终结论\n")
+    f.write("-" * 50 + "\n")
+    f.write(f"[LASSO筛选] 痰湿体质关键指标（{len(lasso_key)}个）:\n")
+    for feat_name in lasso_key:
+        cat = "血常规" if feat_name in blood_indicators else "活动量表"
+        f.write(f"  - {feat_name} ({cat})\n")
+    f.write(f"\n[随机森林] 高血脂预警Top10指标（{len(rf_top_n)}个）:\n")
+    for feat_name in rf_top_n:
+        cat = "血常规" if feat_name in blood_indicators else "活动量表"
+        f.write(f"  - {feat_name} ({cat})\n")
+    f.write(f"\n[综合] 两种方法共同选中的关键指标（{len(both_key)}个）:\n")
+    for feat_name in both_key:
+        cat = "血常规" if feat_name in blood_indicators else "活动量表"
+        f.write(f"  * {feat_name} ({cat})\n")
+
+print(f"  -> 摘要已保存: output/q1_1/summary.txt")
+
+
+# ======================================================================
 # 最终总结
 # ======================================================================
 print("\n" + "=" * 70)

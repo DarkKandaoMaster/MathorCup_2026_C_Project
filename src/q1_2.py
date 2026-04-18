@@ -261,23 +261,74 @@ result_df.to_csv(os.path.join(OUTPUT_DIR, 'logistic_regression_results.csv'),
                  index=False, encoding='utf-8-sig')
 
 # 保存完整模型摘要
-with open(os.path.join(OUTPUT_DIR, 'model_summary.txt'), 'w', encoding='utf-8') as f:
-    f.write("九种体质对高血脂发病风险的贡献度差异 —— 多元逻辑回归\n")
+with open(os.path.join(OUTPUT_DIR, 'summary.txt'), 'w', encoding='utf-8') as f:
+    f.write("问题1-2：九种体质对高血脂发病风险的贡献度差异 —— 结果摘要\n")
     f.write("=" * 70 + "\n\n")
+
+    # 变量信息
+    f.write("一、变量信息\n")
+    f.write("-" * 50 + "\n")
+    f.write(f"自变量: {len(constitution_features)}种体质积分\n")
+    f.write(f"因变量: 高血脂症二分类标签 (1={sum(y==1)}, 0={sum(y==0)})\n")
+    f.write(f"正样本比例: {y.mean():.2%}\n\n")
+
+    # VIF
+    f.write("二、多重共线性检验（VIF）\n")
+    f.write("-" * 50 + "\n")
+    f.write(vif_data.to_string(index=False) + "\n")
+    f.write(f"VIF > 10 的特征: {(vif_data['VIF'] > 10).sum()}个\n")
+    if (vif_data['VIF'] > 10).any():
+        f.write("注意: 存在多重共线性，结果需谨慎解读\n")
+    f.write("\n")
+
+    # 模型摘要
+    f.write("三、多元逻辑回归模型\n")
+    f.write("-" * 50 + "\n")
     f.write(logit_result.summary().as_text())
     f.write("\n\n")
-    f.write("优势比（OR值）及95%置信区间:\n")
+
+    # 回归系数、OR值
+    f.write("四、回归系数、优势比（OR值）与统计显著性\n")
+    f.write("-" * 80 + "\n")
+    f.write(f"{'体质':<8} {'系数':>10} {'OR值':>8} {'95%CI':>22} "
+            f"{'P值':>10} {'方向':>8}\n")
     f.write("-" * 80 + "\n")
     for _, row in result_df.iterrows():
         ci_str = f"[{row['OR_95%CI_下限']:.3f}, {row['OR_95%CI_上限']:.3f}]"
         direction = "风险" if row['回归系数(Coef)'] > 0 else "保护"
-        f.write(f"{row['体质']}: Coef={row['回归系数(Coef)']:.4f}, "
-                f"OR={row['OR值']:.3f} {ci_str}, P={row['P值']:.4f} ({direction})\n")
-    f.write(f"\n模型评估: AUC={auc:.4f}, 准确率={acc:.4f}, "
-            f"McFadden R²={logit_result.prsquared:.4f}\n")
+        f.write(f"{row['体质']:<8} {row['回归系数(Coef)']:>10.4f} "
+                f"{row['OR值']:>8.3f} {ci_str:>22} "
+                f"{row['P值']:>10.4f} {direction:>8}\n")
+    f.write("\n")
+
+    # 模型评估
+    f.write("五、模型评估\n")
+    f.write("-" * 50 + "\n")
+    f.write(f"McFadden伪R²: {logit_result.prsquared:.4f}\n")
+    f.write(f"对数似然值: {logit_result.llf:.4f}\n")
+    f.write(f"AIC: {logit_result.aic:.4f}\n")
+    f.write(f"BIC: {logit_result.bic:.4f}\n")
+    f.write(f"AUC: {auc:.4f}\n")
+    f.write(f"准确率: {acc:.4f}\n\n")
+
+    f.write("混淆矩阵:\n")
+    f.write(f"          预测=0  预测=1\n")
+    f.write(f"实际=0    {cm[0,0]:>5d}   {cm[0,1]:>5d}\n")
+    f.write(f"实际=1    {cm[1,0]:>5d}   {cm[1,1]:>5d}\n\n")
+
+    # 最终结论
+    f.write("六、最终结论\n")
+    f.write("-" * 50 + "\n")
+    f.write("按贡献度（回归系数绝对值）排序:\n")
+    for i, (_, row) in enumerate(result_df.iterrows(), 1):
+        direction = "风险" if row['回归系数(Coef)'] > 0 else "保护"
+        f.write(f"  {i}. {row['体质']}: Coef={row['回归系数(Coef)']:.4f}, "
+                f"OR={row['OR值']:.3f}, P={row['P值']:.4f} —— {direction}因素\n")
+    f.write(f"\n注：九种体质均未达P<0.05统计显著水平，"
+            f"但贡献度排序仍可反映体质对高血脂风险的影响方向与相对大小。\n")
 
 print(f"\n  -> 结果已保存: output/q1_2/logistic_regression_results.csv")
-print(f"  -> 模型摘要已保存: output/q1_2/model_summary.txt")
+print(f"  -> 模型摘要已保存: output/q1_2/summary.txt")
 
 
 # ======================================================================

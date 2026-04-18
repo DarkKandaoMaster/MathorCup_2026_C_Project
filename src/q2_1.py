@@ -457,6 +457,100 @@ thresholds_df.to_csv(os.path.join(OUTPUT_DIR, 'risk_thresholds.csv'),
 
 
 # ======================================================================
+# 保存关键结果摘要到 TXT
+# ======================================================================
+with open(os.path.join(OUTPUT_DIR, 'summary.txt'), 'w', encoding='utf-8') as f:
+    f.write("问题2-1：融合多维度特征的风险预警模型 —— 结果摘要\n")
+    f.write("=" * 70 + "\n\n")
+
+    # 逻辑回归
+    f.write("一、逻辑回归概率预测模型\n")
+    f.write("-" * 50 + "\n")
+    f.write(f"5折交叉验证 AUC: {cv_auc.mean():.4f} ± {cv_auc.std():.4f}\n")
+    f.write(f"5折交叉验证 ACC: {cv_acc.mean():.4f} ± {cv_acc.std():.4f}\n\n")
+
+    f.write(f"预测概率统计:\n")
+    f.write(f"  全体: mean={y_prob.mean():.4f}, std={y_prob.std():.4f}, "
+            f"min={y_prob.min():.4f}, max={y_prob.max():.4f}\n")
+    f.write(f"  正例: mean={y_prob[y == 1].mean():.4f}, std={y_prob[y == 1].std():.4f}\n")
+    f.write(f"  负例: mean={y_prob[y == 0].mean():.4f}, std={y_prob[y == 0].std():.4f}\n\n")
+
+    f.write("逻辑回归系数（按绝对值排序）:\n")
+    for feat, coef in lr_coefs.items():
+        cat = ("体质" if feat in constitution_scores else
+               "血常规" if feat in blood_indicators else
+               "活动量表" if feat in activity_scores else "人口学")
+        direction = "正向↑" if coef > 0 else "负向↓"
+        f.write(f"  {feat} ({cat}): {direction}, 系数={coef:.4f}\n")
+    f.write("\n")
+
+    # 三级阈值
+    f.write("二、三级风险阈值\n")
+    f.write("-" * 50 + "\n")
+    f.write(f"[ROC/Youden] 最优二分界点: {best_threshold_roc:.4f} "
+            f"(J={j_scores[best_idx]:.4f})\n")
+    f.write(f"[分位数分析] 全体Q33={q33_all:.4f}, Q50={q50_all:.4f}, "
+            f"Q67={q67_all:.4f}\n")
+    f.write(f"  正例Q25={q25_pos:.4f}, 负例Q75={q75_neg:.4f}\n\n")
+    f.write(f">>> 最终三级风险阈值 <<<\n")
+    f.write(f"  低风险: P < {threshold_low:.4f}  "
+            f"(依据: 负例Q75={q75_neg:.4f} 与 全体Q33={q33_all:.4f} 的较小值)\n")
+    f.write(f"  中风险: {threshold_low:.4f} ≤ P ≤ {threshold_high:.4f}  "
+            f"(依据: ROC曲线Youden最优点={best_threshold_roc:.4f})\n")
+    f.write(f"  高风险: P > {threshold_high:.4f}\n\n")
+
+    f.write("风险等级分布:\n")
+    for level in risk_order:
+        subset = df[df['风险等级'] == level]
+        n = len(subset)
+        n_pos = sum(subset['高血脂症二分类标签'] == 1)
+        rate = n_pos / n if n > 0 else 0
+        f.write(f"  {level}: n={n}, 确诊={n_pos}, 实际患病率={rate:.2%}\n")
+    f.write("\n")
+
+    # 决策树
+    f.write("三、决策树特征分层阈值规则\n")
+    f.write("-" * 50 + "\n")
+    f.write(f"决策树训练准确率: {tree_acc:.4f}\n\n")
+    f.write("决策树文本规则:\n")
+    f.write(tree_text + "\n\n")
+
+    for level in ['低风险', '中风险', '高风险']:
+        level_rules = [r for r in rules if r['predicted'] == level]
+        f.write(f"【{level}】的判定规则:\n")
+        for i, r in enumerate(level_rules, 1):
+            conditions = ' 且 '.join(r['path'])
+            dist_str = ', '.join(
+                [f"{k}:{v}" for k, v in r['distribution'].items() if v > 0])
+            f.write(f"  规则{i}: {conditions}\n")
+            f.write(f"    → {level} (置信度={r['confidence']:.2%}, "
+                    f"样本数={r['samples']}, 分布: {dist_str})\n")
+        f.write("\n")
+
+    # 特征均值对比
+    f.write("四、关键特征在各风险等级中的均值对比\n")
+    f.write("-" * 50 + "\n")
+    f.write(f"{'特征':<30s} {'低风险':>10s} {'中风险':>10s} {'高风险':>10s}\n")
+    f.write("-" * 65 + "\n")
+    for feat in key_features:
+        vals = []
+        for level in risk_order:
+            subset = df[df['风险等级'] == level]
+            vals.append(f"{subset[feat].mean():.4f}")
+        f.write(f"{feat:<30s} {vals[0]:>10s} {vals[1]:>10s} {vals[2]:>10s}\n")
+    f.write("\n")
+
+    # ROC
+    f.write("五、ROC曲线\n")
+    f.write("-" * 50 + "\n")
+    f.write(f"AUC = {roc_auc_val:.4f}\n")
+    f.write(f"Youden最优点: 阈值={best_threshold_roc:.4f}, "
+            f"TPR={tpr[best_idx]:.4f}, FPR={fpr[best_idx]:.4f}\n")
+
+print(f"  -> 摘要已保存: output/q2_1/summary.txt")
+
+
+# ======================================================================
 # 最终总结
 # ======================================================================
 print("\n" + "=" * 70)
