@@ -606,7 +606,7 @@ if len(top_combos_viz) > 0:
     lift_vals = top_combos_viz['对比Lift'].replace([np.inf], 10).values
     support_vals = top_combos_viz['高风险支持度'].values
 
-    colors_bar = plt.cm.RdYlGn(np.linspace(0.3, 0.9, len(combo_labels)))
+    colors_bar = plt.cm.RdYlGn(np.linspace(0.3, 0.9, len(combo_labels))) # RdYlGn是Matplotlib里合法存在的colormap名称，只是它是“动态注册”的，静态检查有时识别不到。所以这里会报红色警告
 
     bars = ax.barh(range(len(combo_labels)), lift_vals, color=colors_bar, alpha=0.85)
     ax.set_yticks(range(len(combo_labels)))
