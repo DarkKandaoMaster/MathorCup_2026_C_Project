@@ -5,16 +5,18 @@ sys.stdout.reconfigure(encoding='utf-8')
 import pandas as pd
 import os
 
+# ==================== 字体与路径设置 ====================
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 DATA_DIR = os.path.join(BASE_DIR, '..', 'data')
 OUTPUT_DIR = os.path.join(BASE_DIR, '..', 'output', 'q3')
 os.makedirs(OUTPUT_DIR, exist_ok=True)
 
+# ==================== 数据加载 ====================
 df = pd.read_csv(os.path.join(DATA_DIR, 'raw_data.csv'), index_col=0)
 df_tw = df[df['体质标签'] == 5].copy()
 print(f"痰湿体质患者数: {len(df_tw)}")
 
-# ============ 模型参数 ============
+# ==================== 构建优化模型 ====================
 BUDGET = 2000
 
 def get_tcm_level(score):
@@ -57,7 +59,7 @@ def optimize(s0, ag, asc):
                 best, best_fs, best_cost, best_det = (inten, freq), fs, cost, det
     return best, best_fs, best_cost, best_det
 
-# ============ 求解所有患者 ============
+# ==================== 既然我们都已经做出模型了，所以我也顺便把题目给的数据中278位确诊为“痰湿体质”的患者都找了个方案 ====================
 rows = []
 for idx, r in df_tw.iterrows():
     s0, ag, asc = r['痰湿质'], int(r['年龄组']), r['活动量表总分（ADL总分+IADL总分）']
@@ -74,7 +76,7 @@ print(f"\n全部{len(res)}名患者求解完毕")
 print(f"最优强度分布: {dict(res['最优强度'].value_counts().sort_index())}")
 print(f"最优频率分布: {dict(res['最优频率'].value_counts().sort_index())}")
 
-# ============ 样本1/2/3详细方案 ============
+# ==================== “样本ID”为1、2、3的病患的详细方案 ====================
 AGE_L = {1:'40-49',2:'50-59',3:'60-69',4:'70-79',5:'80-89'}
 ACT_N = {1:'1级(低)',2:'2级(中)',3:'3级(高)'}
 TCM_N = {1:'基础调理(1级)',2:'中度调理(2级)',3:'强化调理(3级)'}
@@ -98,7 +100,7 @@ for sid in [1, 2, 3]:
     pd.DataFrame(det).to_csv(os.path.join(OUTPUT_DIR, f'sample_{sid}_plan.csv'),
                              index=False, encoding='utf-8-sig')
 
-# ============ 匹配规律 ============
+# ==================== 总结出“什么样的患者-什么样的最优方案”的匹配规律 ====================
 print(f"\n{'='*60}")
 print("匹配规律分析")
 print(f"{'='*60}")
