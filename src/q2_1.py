@@ -13,13 +13,16 @@ import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib
 import os
-
+import random
 from sklearn.linear_model import LogisticRegression
 from sklearn.tree import DecisionTreeClassifier, export_text, plot_tree
 from sklearn.model_selection import cross_val_score, StratifiedKFold
-from sklearn.metrics import (roc_curve, auc, classification_report,
-                             confusion_matrix, roc_auc_score)
+from sklearn.metrics import (roc_curve, auc, classification_report, confusion_matrix, roc_auc_score)
 from sklearn.preprocessing import StandardScaler
+
+random.seed(42)
+np.random.seed(42)
+os.environ['PYTHONHASHSEED'] = '42'
 
 # ==================== 字体与路径设置 ====================
 matplotlib.rcParams['font.sans-serif'] = ['SimHei', 'Microsoft YaHei']

@@ -15,10 +15,14 @@ import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib
 import os
-
+import random
 from sklearn.linear_model import LassoCV, Lasso, lasso_path
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.model_selection import cross_val_score, StratifiedKFold
+
+random.seed(42)
+np.random.seed(42)
+os.environ['PYTHONHASHSEED'] = '42'
 
 # ==================== 字体与路径设置 ====================
 matplotlib.rcParams['font.sans-serif'] = ['SimHei', 'Microsoft YaHei']

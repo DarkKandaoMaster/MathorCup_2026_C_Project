@@ -17,8 +17,13 @@ import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib
 import os
+import random
 import statsmodels.api as sm
 from statsmodels.stats.outliers_influence import variance_inflation_factor
+
+random.seed(42)
+np.random.seed(42)
+os.environ['PYTHONHASHSEED'] = '42'
 
 # ==================== 字体与路径设置 ====================
 matplotlib.rcParams['font.sans-serif'] = ['SimHei', 'Microsoft YaHei']

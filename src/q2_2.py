@@ -17,10 +17,14 @@ import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib
 import os
+import random
 from scipy.stats import chi2_contingency
 from itertools import combinations
-
 from mlxtend.frequent_patterns import apriori, association_rules
+
+random.seed(42)
+np.random.seed(42)
+os.environ['PYTHONHASHSEED'] = '42'
 
 # ==================== 字体与路径设置 ====================
 matplotlib.rcParams['font.sans-serif'] = ['SimHei', 'Microsoft YaHei']
