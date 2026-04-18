@@ -37,4 +37,3 @@ df_preprocessed[continuous] = scaler.fit_transform(df[continuous])
 
 # 导出到新的csv文件
 df_preprocessed.to_csv(output_file, index=False)
-print(f"数据预处理完成，已保存至：{output_file}")
