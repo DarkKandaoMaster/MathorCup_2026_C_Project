@@ -5,13 +5,13 @@
 目录结构：
 ```
 MathorCup_2026_C_Project/
-├── data/							# 数据存放目录
+├── data/
 │   ├── 2026年第十六届MathorCup数学应用挑战赛题目—C题.pdf
 │   ├── 附件1：样例数据.xlsx			# 题目给的原始数据
 │   ├── minmax_scaler.pkl			# q0.py保存的MinMaxScaler对象，供后续反归一化使用
 │   ├── preprocessed_data.csv		# q0.py处理后的数据
 │   └── raw_data.csv				# q0.py转换后的csv格式的原始数据
-├── src/							# 源代码目录
+├── src/
 │   ├── q0.py						# 数据预处理
 │   ├── q1_1.py						# 问题1第一小问
 │   ├── q1_2.py						# 问题1第二小问
@@ -20,7 +20,7 @@ MathorCup_2026_C_Project/
 │   └── q3.py						# 问题3
 ├── notes/							# 题解
 ├── output/							# 运行结果与输出目录
-├── paper/							# 论文
+├── paper/
 │   ├── images/						# 放入论文里的图片
 │   └── MathorCup_C_Paper.docx		# 论文文件
 ├── README.md						# 项目说明文档
