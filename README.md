@@ -1,7 +1,7 @@
 # MathorCup_2026_C_Project
 
 我们完成了2026年第十六届MathorCup数学应用挑战赛的C题！  
-本仓库存放了我们的代码、题解、论文等。  
+本仓库存放了我们的代码、题解、最终论文等东西。  
 目录结构：  
 ```
 MathorCup_2026_C_Project/
@@ -13,7 +13,7 @@ MathorCup_2026_C_Project/
 ├── notes/							# 题解
 ├── output/							# 代码运行结果
 ├── paper/
-│   └── MathorCup_C_Paper.docx		# 论文
+│   └── CMC2603771.pdf				# 最终论文【【【【【记得改一下
 ├── src/
 │   ├── q0.py						# 数据预处理
 │   ├── q1_1.py						# 问题1第一小问
@@ -25,7 +25,7 @@ MathorCup_2026_C_Project/
 └── requirements.txt				# 环境依赖列表
 ```
 
-requirements.txt 列出了需要的环境。使用安装了这些环境的Python环境，cd到src目录下，即可正常运行代码。  
+安装 requirements.txt 中的依赖后，cd到本项目的 src/ 目录即可正常运行代码。  
 
 比赛期间，本仓库是私有的。我们将会在获奖名单公布后公开该仓库。  
 
