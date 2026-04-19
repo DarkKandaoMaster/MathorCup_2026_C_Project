@@ -249,6 +249,7 @@ ax.set_xlabel('假阳性率 (FPR)', fontsize=12)
 ax.set_ylabel('真阳性率 (TPR)', fontsize=12)
 ax.set_title('ROC曲线 —— 九种体质预测高血脂', fontsize=14)
 ax.legend(fontsize=12)
+ax.legend(loc='lower right')
 ax.set_xlim([0, 1])
 ax.set_ylim([0, 1.05])
 
