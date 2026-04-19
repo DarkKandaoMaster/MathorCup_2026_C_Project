@@ -38,8 +38,3 @@ df_preprocessed[continuous] = scaler.fit_transform(df[continuous])
 
 # 导出到新的csv文件
 df_preprocessed.to_csv(output_file, index=False)
-
-# 5. 保存MinMaxScaler对象，供后续反归一化使用
-scaler_output_file = "../data/minmax_scaler.pkl"
-joblib.dump(scaler, scaler_output_file)
-print(f"MinMaxScaler已保存至 {scaler_output_file}")

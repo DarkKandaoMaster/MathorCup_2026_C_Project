@@ -8,7 +8,6 @@ MathorCup_2026_C_Project/
 ├── data/
 │   ├── 2026年第十六届MathorCup数学应用挑战赛题目—C题.pdf
 │   ├── 附件1：样例数据.xlsx			# 题目给的原始数据
-│   ├── minmax_scaler.pkl			# q0.py保存的MinMaxScaler对象，供后续反归一化使用
 │   ├── preprocessed_data.csv		# q0.py处理后的数据
 │   └── raw_data.csv				# q0.py转换后的csv格式的原始数据
 ├── notes/							# 题解
@@ -28,4 +27,4 @@ MathorCup_2026_C_Project/
 
 比赛期间，本仓库是私有的。我们将会在获奖名单公布后公开该仓库。
 
-如何复现？
+requirements.txt 列出了需要的环境。使用

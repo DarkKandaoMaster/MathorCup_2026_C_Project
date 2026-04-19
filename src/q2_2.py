@@ -18,7 +18,6 @@ import matplotlib
 import os
 import random
 from scipy.stats import chi2_contingency
-import joblib
 from mlxtend.frequent_patterns import apriori, association_rules
 
 random.seed(42)

@@ -18,7 +18,6 @@ from sklearn.tree import DecisionTreeClassifier, export_text, plot_tree
 from sklearn.model_selection import cross_val_score, StratifiedKFold
 from sklearn.metrics import (roc_curve, auc)
 from sklearn.preprocessing import StandardScaler
-import joblib
 
 random.seed(42)
 np.random.seed(42)
