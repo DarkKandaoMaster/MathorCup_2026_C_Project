@@ -90,7 +90,7 @@ X_scaled = scaler.fit_transform(X)
 
 # 逻辑回归模型（L2正则化，class_weight处理类别不平衡）
 lr = LogisticRegression(
-    penalty='l2', C=1.0, solver='lbfgs',
+    l1_ratio=0, C=1.0, solver='lbfgs', # 这里需要把 penalty='l2' 改成 l1_ratio=0 ，不然会报一个未来版本弃用警告
     max_iter=5000, random_state=42,
     class_weight='balanced'
 )
