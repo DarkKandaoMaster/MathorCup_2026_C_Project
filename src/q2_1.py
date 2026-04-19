@@ -216,8 +216,7 @@ ax1.axvline(x=threshold_high, color='red', linestyle='--', linewidth=2,
 ax1.set_title('逻辑回归预测概率分布', fontsize=14)
 ax1.set_xlabel('预测概率 P(高血脂)')
 ax1.set_ylabel('样本数')
-ax1.legend(fontsize=10)
-ax1.legend(loc='upper left')
+ax1.legend(fontsize=10, loc='upper left')
 
 # (b) ROC曲线
 ax2 = axes[1]
