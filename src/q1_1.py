@@ -165,7 +165,7 @@ ax2.axvline(x=-np.log10(alpha_relaxed), color='orange', linestyle='--',
 ax2.set_title('LASSO正则化路径', fontsize=14)
 ax2.set_xlabel('-log10(alpha)')
 ax2.set_ylabel('系数值')
-ax2.legend(fontsize=5, ncol=3, loc='best')
+ax2.legend(fontsize=5.8, ncol=3, loc='best') #？？字体大小居然可以设置成小数的？
 
 plt.tight_layout()
 plt.savefig(os.path.join(OUTPUT_DIR, 'lasso_results.png'), dpi=300, bbox_inches='tight')
