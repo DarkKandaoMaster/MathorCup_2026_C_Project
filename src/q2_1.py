@@ -217,6 +217,7 @@ ax1.set_title('逻辑回归预测概率分布', fontsize=14)
 ax1.set_xlabel('预测概率 P(高血脂)')
 ax1.set_ylabel('样本数')
 ax1.legend(fontsize=10)
+ax1.legend(loc='upper left')
 
 # (b) ROC曲线
 ax2 = axes[1]
@@ -405,7 +406,7 @@ legend_patches_lr = [
     Patch(facecolor='#3498db', label='活动量表评分'),
     Patch(facecolor='#95a5a6', label='人口学变量')
 ]
-ax.legend(handles=legend_patches_lr, loc='lower right')
+ax.legend(handles=legend_patches_lr, loc='upper right')
 
 plt.tight_layout()
 plt.savefig(os.path.join(OUTPUT_DIR, 'lr_coefficients.png'), dpi=300, bbox_inches='tight')
