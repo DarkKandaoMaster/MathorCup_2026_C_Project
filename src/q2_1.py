@@ -326,7 +326,7 @@ for level in ['低风险', '中风险', '高风险']:
 fig, ax = plt.subplots(figsize=(24, 14))
 plot_tree(dt, feature_names=list(all_features),
           class_names=['低风险', '中风险', '高风险'],
-          filled=True, rounded=True, fontsize=9, ax=ax)
+          filled=True, rounded=True, fontsize=10, ax=ax)
 ax.set_title('风险分级决策树（特征分层阈值提取）', fontsize=16)
 plt.savefig(os.path.join(OUTPUT_DIR, 'decision_tree.png'), dpi=300, bbox_inches='tight')
 plt.close()
