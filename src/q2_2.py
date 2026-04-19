@@ -18,7 +18,6 @@ import matplotlib
 import os
 import random
 from scipy.stats import chi2_contingency
-from itertools import combinations
 import joblib
 from mlxtend.frequent_patterns import apriori, association_rules
 
