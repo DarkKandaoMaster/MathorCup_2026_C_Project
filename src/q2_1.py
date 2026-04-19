@@ -18,6 +18,7 @@ from sklearn.tree import DecisionTreeClassifier, export_text, plot_tree
 from sklearn.model_selection import cross_val_score, StratifiedKFold
 from sklearn.metrics import (roc_curve, auc, classification_report, confusion_matrix, roc_auc_score)
 from sklearn.preprocessing import StandardScaler
+import joblib
 
 random.seed(42)
 np.random.seed(42)
@@ -35,6 +36,9 @@ os.makedirs(OUTPUT_DIR, exist_ok=True)
 # ==================== 数据加载 ====================
 df = pd.read_csv(os.path.join(DATA_DIR, 'preprocessed_data.csv'), index_col=0)
 print(f"数据维度: {df.shape}")
+
+# 加载MinMaxScaler（用于反归一化决策树阈值）
+mm_scaler = joblib.load(os.path.join(DATA_DIR, 'minmax_scaler.pkl'))
 
 # ==================== 特征定义 ====================
 # 九种体质积分
@@ -269,8 +273,8 @@ print(f"\n决策树规则:\n{tree_text}")
 print("\n>>> 从决策树提取的特征分层阈值选取依据 <<<\n")
 
 
-def extract_rules(tree, feature_names):
-    """从决策树中提取所有叶节点的规则路径"""
+def extract_rules(tree, feature_names, mm_scaler=None):
+    """从决策树中提取所有叶节点的规则路径（含反归一化阈值）"""
     tree_ = tree.tree_
     feature_name = [
         feature_names[i] if i != -2 else "undefined!"
@@ -280,16 +284,28 @@ def extract_rules(tree, feature_names):
     class_names = ['低风险', '中风险', '高风险']
     rules = []
 
-    def recurse(node, path):
+    def denorm(feat_name, val):
+        """反归一化：将归一化值还原为原始物理尺度"""
+        if mm_scaler is not None and feat_name in mm_scaler.feature_names_in_:
+            idx = list(mm_scaler.feature_names_in_).index(feat_name)
+            min_v = mm_scaler.data_min_[idx]
+            max_v = mm_scaler.data_max_[idx]
+            return val * (max_v - min_v) + min_v
+        return val  # 分类型变量不变
+
+    def recurse(node, path, path_denorm):
         if tree_.feature[node] != -2:  # 非叶节点
             name = feature_name[node]
             threshold = tree_.threshold[node]
+            threshold_orig = denorm(name, threshold)
             # 左子树: feature <= threshold
             recurse(tree_.children_left[node],
-                    path + [f"{name} ≤ {threshold:.4f}"])
+                    path + [f"{name} ≤ {threshold:.4f}"],
+                    path_denorm + [f"{name} ≤ {threshold_orig:.4f}"])
             # 右子树: feature > threshold
             recurse(tree_.children_right[node],
-                    path + [f"{name} > {threshold:.4f}"])
+                    path + [f"{name} > {threshold:.4f}"],
+                    path_denorm + [f"{name} > {threshold_orig:.4f}"])
         else:  # 叶节点
             # tree_.value 可能存储归一化概率，用 n_node_samples 还原真实计数
             values = tree_.value[node][0]
@@ -305,17 +321,18 @@ def extract_rules(tree, feature_names):
             confidence = values[pred_class] / total_prob if total_prob > 0 else 0
             rules.append({
                 'path': path,
+                'path_denorm': path_denorm,
                 'predicted': pred_name,
                 'confidence': confidence,
                 'samples': n_samples,
                 'distribution': {class_names[i]: int(counts[i]) for i in range(len(class_names))}
             })
 
-    recurse(0, [])
+    recurse(0, [], [])
     return rules
 
 
-rules = extract_rules(dt, list(all_features))
+rules = extract_rules(dt, list(all_features), mm_scaler)
 
 # 按风险等级分组展示
 for level in ['低风险', '中风险', '高风险']:
@@ -323,8 +340,10 @@ for level in ['低风险', '中风险', '高风险']:
     print(f"【{level}】的判定规则:")
     for i, r in enumerate(level_rules, 1):
         conditions = ' 且 '.join(r['path'])
+        conditions_denorm = ' 且 '.join(r['path_denorm'])
         dist_str = ', '.join([f"{k}:{v}" for k, v in r['distribution'].items() if v > 0])
-        print(f"  规则{i}: {conditions}")
+        print(f"  规则{i} [归一化]: {conditions}")
+        print(f"  规则{i} [原始尺度]: {conditions_denorm}")
         print(f"    → {level} (置信度={r['confidence']:.2%}, 样本数={r['samples']}, 分布: {dist_str})")
     print()
 
@@ -437,7 +456,8 @@ rules_df = pd.DataFrame([
         '风险等级': r['predicted'],
         '置信度': f"{r['confidence']:.4f}",
         '样本数': r['samples'],
-        '规则条件': ' 且 '.join(r['path']),
+        '规则条件(归一化)': ' 且 '.join(r['path']),
+        '规则条件(原始尺度)': ' 且 '.join(r['path_denorm']),
         **{f'分布_{k}': v for k, v in r['distribution'].items()}
     }
     for r in rules
@@ -522,9 +542,11 @@ with open(os.path.join(OUTPUT_DIR, 'summary.txt'), 'w', encoding='utf-8') as f:
         f.write(f"【{level}】的判定规则:\n")
         for i, r in enumerate(level_rules, 1):
             conditions = ' 且 '.join(r['path'])
+            conditions_denorm = ' 且 '.join(r['path_denorm'])
             dist_str = ', '.join(
                 [f"{k}:{v}" for k, v in r['distribution'].items() if v > 0])
-            f.write(f"  规则{i}: {conditions}\n")
+            f.write(f"  规则{i} [归一化]: {conditions}\n")
+            f.write(f"  规则{i} [原始尺度]: {conditions_denorm}\n")
             f.write(f"    → {level} (置信度={r['confidence']:.2%}, "
                     f"样本数={r['samples']}, 分布: {dist_str})\n")
         f.write("\n")

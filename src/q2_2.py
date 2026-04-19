@@ -19,6 +19,7 @@ import os
 import random
 from scipy.stats import chi2_contingency
 from itertools import combinations
+import joblib
 from mlxtend.frequent_patterns import apriori, association_rules
 
 random.seed(42)
@@ -41,6 +42,9 @@ risk_df = pd.read_csv(os.path.join(Q21_DIR, 'risk_classification_results.csv'), 
 
 df['风险等级'] = risk_df['风险等级']
 df['预测概率'] = risk_df['预测概率']
+
+# 加载MinMaxScaler（用于反归一化关联规则阈值）
+mm_scaler = joblib.load(os.path.join(DATA_DIR, 'minmax_scaler.pkl'))
 
 print(f"数据维度: {df.shape}")
 print(f"全体样本数: {len(df)}")
@@ -99,6 +103,21 @@ for feat, info in key_continuous.items():
         print(f"  {info['标签']}: 阈值={info['阈值']:.4f} ({info['来源']})")
     else:
         print(f"  {info['标签']}: 阈值={info['阈值']:.4f} ({info['来源']})")
+
+# 反归一化：将阈值还原为原始物理尺度
+print(f"\n反归一化阈值（原始物理尺度）:")
+for feat, info in key_continuous.items():
+    threshold = info['阈值']
+    if feat in mm_scaler.feature_names_in_:
+        idx = list(mm_scaler.feature_names_in_).index(feat)
+        min_v = mm_scaler.data_min_[idx]
+        max_v = mm_scaler.data_max_[idx]
+        threshold_orig = threshold * (max_v - min_v) + min_v
+        direction = '>' if info['方向'] == '高' else '<'
+        print(f"  {feat}: {direction} {threshold:.4f}(归一化) → {direction} {threshold_orig:.2f}(原始尺度, "
+              f"范围: [{min_v:.2f}, {max_v:.2f}])")
+    else:
+        print(f"  {feat}: 非连续型变量，阈值不变")
 
 
 def discretize(data, feat_info):
@@ -680,7 +699,16 @@ with open(os.path.join(OUTPUT_DIR, 'summary.txt'), 'w', encoding='utf-8') as f:
     f.write("二、离散化阈值\n")
     f.write("-" * 50 + "\n")
     for feat, info in key_continuous.items():
-        f.write(f"  {info['标签']}: 阈值={info['阈值']:.4f} ({info['来源']})\n")
+        threshold = info['阈值']
+        if feat in mm_scaler.feature_names_in_:
+            idx = list(mm_scaler.feature_names_in_).index(feat)
+            min_v = mm_scaler.data_min_[idx]
+            max_v = mm_scaler.data_max_[idx]
+            threshold_orig = threshold * (max_v - min_v) + min_v
+            f.write(f"  {info['标签']}: 阈值={threshold:.4f}(归一化) → "
+                    f"{threshold_orig:.2f}(原始尺度) ({info['来源']})\n")
+        else:
+            f.write(f"  {info['标签']}: 阈值={threshold:.4f} ({info['来源']})\n")
     f.write("  老年(≥60岁): 年龄组≥3\n")
     f.write("  男性: 性别=1\n")
     f.write("  有吸烟: 吸烟史=1\n")
