@@ -26,6 +26,12 @@ os.environ['PYTHONHASHSEED'] = '42'
 # ==================== 字体与路径设置 ====================
 matplotlib.rcParams['font.sans-serif'] = ['SimHei', 'Microsoft YaHei']
 matplotlib.rcParams['axes.unicode_minus'] = False
+matplotlib.rcParams['font.size'] = 12 # 全局默认字号
+matplotlib.rcParams['axes.titlesize'] = 16 # 子图标题字号
+matplotlib.rcParams['axes.labelsize'] = 14 # 坐标轴标签字号
+matplotlib.rcParams['xtick.labelsize'] = 10 # X轴刻度字号
+matplotlib.rcParams['ytick.labelsize'] = 10 # Y轴刻度字号
+matplotlib.rcParams['legend.fontsize'] = 12 # 图例字号
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 DATA_DIR = os.path.join(BASE_DIR, '..', 'data')
