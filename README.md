@@ -29,4 +29,8 @@ requirements.txt 列出了需要的环境。使用安装了这些环境的Python
 
 比赛期间，本仓库是私有的。我们将会在获奖名单公布后公开该仓库。  
 
-分工：
+@DarkKandaoMaster
+
+@Jasmine-mochi
+
+@lonelydrinker
