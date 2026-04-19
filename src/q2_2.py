@@ -616,8 +616,7 @@ if len(top_combos_viz) > 0:
     ax.set_title('核心特征组合：对比Lift排名（高风险 vs 非高风险）', fontsize=16)
     ax.axvline(x=1.0, color='red', linestyle='--', linewidth=1.5,
                label='Lift=1（无差异基准）')
-    ax.legend(fontsize=14)
-    ax.legend(loc='lower right')
+    ax.legend(fontsize=14, loc='lower right')
     ax.invert_yaxis()
 
     for bar, sup in zip(bars, support_vals):
