@@ -554,7 +554,7 @@ if len(rules) > 0:
         cons = ' + '.join(sorted(r['consequents']))
         label = f"{ant[:15]}...→{cons[:10]}"
         ax.annotate(label, (r['support'], r['confidence']),
-                    fontsize=7, alpha=0.8, xytext=(5, 5),
+                    fontsize=11, alpha=0.8, xytext=(5, 5),
                     textcoords='offset points')
 
     plt.tight_layout()
