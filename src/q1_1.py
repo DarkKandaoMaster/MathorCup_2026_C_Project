@@ -226,7 +226,7 @@ bar_colors_rf = [color_map['血常规' if f in blood_indicators else
 rf_importances.plot(kind='barh', color=bar_colors_rf, ax=ax1)
 ax1.set_title('随机森林特征重要性（高血脂发病风险预警）', fontsize=14)
 ax1.set_xlabel('特征重要性')
-ax1.legend(handles=legend_patches, loc='lower right')
+ax1.legend(handles=legend_patches, loc='upper right')
 
 # (2b) 累积重要性
 ax2 = axes[1]
