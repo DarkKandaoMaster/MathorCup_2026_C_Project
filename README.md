@@ -14,17 +14,17 @@ MathorCup_2026_C_Project/
 ├── src/                                                 # 源代码目录
 │   ├── q0.py                                            # 数据预处理
 │   ├── q1_1.py                                          # 问题1第一小问
-│   ├── q1_2.py                                          # 问题1第二小问
-│   ├── q2_1.py                                          # 问题2第一小问
-│   ├── q2_2.py                                          # 问题2第二小问
-│   └── q3.py                                            # 问题3
-├── notes/						# 题解
-├── output/                                              # 运行结果与输出目录
-├── paper/                                               # 论文
-│   ├── images/                                          # 放入论文里的图片
-│   └── MathorCup_C_Paper.docx                           # 论文文件
-├── README.md                                            # 项目说明文档
-├── 目录结构.txt                                          # 这是目录结构说明，讲了我这个仓库每层目录分别对应什么
-└── requirements.txt                                     # 环境依赖列表
+│   ├── q1_2.py						# 问题1第二小问
+│   ├── q2_1.py						# 问题2第一小问
+│   ├── q2_2.py						# 问题2第二小问
+│   └── q3.py						# 问题3
+├── notes/							# 题解
+├── output/						# 运行结果与输出目录
+├── paper/							# 论文
+│   ├── images/						# 放入论文里的图片
+│   └── MathorCup_C_Paper.docx	# 论文文件
+├── README.md					# 项目说明文档
+├── 目录结构.txt						# 这是目录结构说明，讲了我这个仓库每层目录分别对应什么
+└── requirements.txt				# 环境依赖列表
 ```
 
