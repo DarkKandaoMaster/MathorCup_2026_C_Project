@@ -12,7 +12,7 @@ MathorCup_2026_C_Project/
 │   ├── preprocessed_data.csv		# q0.py处理后的数据
 │   └── raw_data.csv				# q0.py转换后的csv格式的原始数据
 ├── notes/							# 题解
-├── output/							# 代码运行结果与输出
+├── output/							# 代码运行结果
 ├── paper/
 │   ├── images/						# 放入论文里的图片
 │   └── MathorCup_C_Paper.docx		# 论文
