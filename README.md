@@ -1,16 +1,16 @@
 # MathorCup_2026_C_Project
 
-我们利用本仓库完成了2026年第十六届MathorCup数学应用挑战赛的C题！本仓库存储了我们的代码、题解、论文。
+我们利用本仓库完成了2026年第十六届MathorCup数学应用挑战赛的C题！本仓库存放了我们的代码、题解、论文等。
 
 目录结构：
 ```
 MathorCup_2026_C_Project/
-├── data/							# 数据存放目录（存放题目、原始数据、处理后的数据）
+├── data/							# 数据存放目录
 │   ├── 2026年第十六届MathorCup数学应用挑战赛题目—C题.pdf
+│   ├── 附件1：样例数据.xlsx			# 题目给的原始数据
 │   ├── minmax_scaler.pkl			# q0.py保存的MinMaxScaler对象，供后续反归一化使用
-│   ├── 附件1：样例数据.xlsx			# 原始数据
-│   ├── raw_data.csv				# csv格式的原始数据
-│   └── preprocessed_data.csv		# 处理后的数据
+│   ├── preprocessed_data.csv		# q0.py处理后的数据
+│   └── raw_data.csv				# q0.py转换后的csv格式的原始数据
 ├── src/							# 源代码目录
 │   ├── q0.py						# 数据预处理
 │   ├── q1_1.py						# 问题1第一小问
