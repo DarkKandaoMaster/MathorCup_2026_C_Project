@@ -1,2 +1,8 @@
-pip install statsmodels
-pip install mlxtend
+pandas
+scikit-learn
+numpy
+matplotlib
+statsmodels
+scipy
+mlxtend
+openpyxl
