@@ -36,14 +36,11 @@ OUTPUT_DIR = os.path.join(BASE_DIR, '..', 'output', 'q2_2')
 os.makedirs(OUTPUT_DIR, exist_ok=True)
 
 # ==================== 数据加载 ====================
-df = pd.read_csv(os.path.join(DATA_DIR, 'preprocessed_data.csv'), index_col=0)
+df = pd.read_csv(os.path.join(DATA_DIR, 'raw_data.csv'), index_col=0)
 risk_df = pd.read_csv(os.path.join(Q21_DIR, 'risk_classification_results.csv'), index_col=0)
 
 df['风险等级'] = risk_df['风险等级']
 df['预测概率'] = risk_df['预测概率']
-
-# 加载MinMaxScaler（用于反归一化关联规则阈值）
-mm_scaler = joblib.load(os.path.join(DATA_DIR, 'minmax_scaler.pkl'))
 
 print(f"数据维度: {df.shape}")
 print(f"全体样本数: {len(df)}")
@@ -68,21 +65,20 @@ print(f"  痰湿体质+非高风险: {n_nonhigh}人 ({n_nonhigh/n_tw:.1%})")
 key_continuous = {
     # 注意：痰湿体质(标签=5)的痰湿积分最小值为0.8462，≥0.6阈值无区分度
     # 改用高风险组Q75(≈0.958)作为"极高痰湿积分"阈值
-    '痰湿质': {'阈值': None, '方向': '高', '标签': '极高痰湿积分(≥Q75)',
-              '来源': '动态Q75'},
-    'TG（甘油三酯）': {'阈值': 0.48, '方向': '高', '标签': '高TG(>0.48)',
-                     '来源': '决策树'},
-    'TC（总胆固醇）': {'阈值': 0.64, '方向': '高', '标签': '高TC(>0.64)',
-                     '来源': '决策树'},
-    'LDL-C（低密度脂蛋白）': {'阈值': None, '方向': '高', '标签': '高LDL-C',
-                           '来源': '动态中位数'},
-    'HDL-C（高密度脂蛋白）': {'阈值': None, '方向': '低', '标签': '低HDL-C',
-                           '来源': '动态中位数'},
+    '痰湿质': {'阈值': None, '方向': '高', '标签': '极高痰湿积分(≥Q75)', '来源': '动态Q75'},
+    
+    # 根据原生决策树提取的绝对阈值
+    'TG（甘油三酯）': {'阈值': 1.92, '方向': '高', '标签': '高TG(>1.92)', '来源': '决策树'},
+    'TC（总胆固醇）': {'阈值': 6.16, '方向': '高', '标签': '高TC(>6.16)', '来源': '决策树'},
+    '血尿酸': {'阈值': 383.50, '方向': '高', '标签': '高血尿酸(>383.50)', '来源': '决策树'},
+    
+    # 临床固定阈值
+    '活动量表总分（ADL总分+IADL总分）': {'阈值': 40, '方向': '低', '标签': '低活动量(<40分)', '来源': '临床(<40分)'},
+    
+    # 其他指标保留动态中位数划分
+    'LDL-C（低密度脂蛋白）': {'阈值': None, '方向': '高', '标签': '高LDL-C', '来源': '动态中位数'},
+    'HDL-C（高密度脂蛋白）': {'阈值': None, '方向': '低', '标签': '低HDL-C', '来源': '动态中位数'},
     'BMI': {'阈值': None, '方向': '高', '标签': '高BMI', '来源': '动态中位数'},
-    '活动量表总分（ADL总分+IADL总分）': {'阈值': 0.4, '方向': '低',
-                                       '标签': '低活动量(<0.4)', '来源': '临床(<40分)'},
-    '血尿酸': {'阈值': 0.63, '方向': '高', '标签': '高血尿酸(>0.63)',
-             '来源': '决策树'},
     '空腹血糖': {'阈值': None, '方向': '高', '标签': '高血糖', '来源': '动态中位数'},
     'ADL总分': {'阈值': None, '方向': '低', '标签': '低ADL', '来源': '动态中位数'},
     'IADL总分': {'阈值': None, '方向': '低', '标签': '低IADL', '来源': '动态中位数'},
@@ -102,21 +98,6 @@ for feat, info in key_continuous.items():
         print(f"  {info['标签']}: 阈值={info['阈值']:.4f} ({info['来源']})")
     else:
         print(f"  {info['标签']}: 阈值={info['阈值']:.4f} ({info['来源']})")
-
-# 反归一化：将阈值还原为原始物理尺度
-print(f"\n反归一化阈值（原始物理尺度）:")
-for feat, info in key_continuous.items():
-    threshold = info['阈值']
-    if feat in mm_scaler.feature_names_in_:
-        idx = list(mm_scaler.feature_names_in_).index(feat)
-        min_v = mm_scaler.data_min_[idx]
-        max_v = mm_scaler.data_max_[idx]
-        threshold_orig = threshold * (max_v - min_v) + min_v
-        direction = '>' if info['方向'] == '高' else '<'
-        print(f"  {feat}: {direction} {threshold:.4f}(归一化) → {direction} {threshold_orig:.2f}(原始尺度, "
-              f"范围: [{min_v:.2f}, {max_v:.2f}])")
-    else:
-        print(f"  {feat}: 非连续型变量，阈值不变")
 
 
 def discretize(data, feat_info):
@@ -388,9 +369,9 @@ explanations = {
     '高LDL-C': '低密度脂蛋白升高是动脉粥样硬化的核心危险因素，痰湿膏脂沉积脉道与LDL-C升高机制一致',
     '低HDL-C': '高密度脂蛋白降低削弱胆固醇逆向转运能力，痰湿体质气血运行不畅与HDL-C降低密切相关',
     '极高痰湿积分': '痰湿积分处于极高水平(Q75以上)反映痰湿体质偏颇极为显著，脾失健运程度深，为高血脂症的强体质基础',
-    '低活动量(<0.4)': '活动量不足（<40分）导致气血津液运行滞缓，痰湿更易内停，且活动量少致能量消耗低、脂质堆积',
+    '低活动量': '活动量不足（<40分）导致气血津液运行滞缓，痰湿更易内停，且活动量少致能量消耗低、脂质堆积',
     '高BMI': 'BMI超标反映痰湿体质者形体肥胖、痰湿膏脂壅盛的体质特征，肥胖与胰岛素抵抗促进脂代谢紊乱',
-    '高血尿酸(>0.63)': '高尿酸与痰湿体质水湿代谢障碍同源，嘌呤代谢异常与脂代谢紊乱常并存，均为代谢综合征组分',
+    '高血尿酸': '高尿酸与痰湿体质水湿代谢障碍同源，嘌呤代谢异常与脂代谢紊乱常并存，均为代谢综合征组分',
     '高血糖': '血糖升高提示糖代谢异常，胰岛素抵抗促进肝脏VLDL合成增加，加重高甘油三酯血症',
     '低ADL': '日常躯体活动能力低下直接影响运动消耗，痰湿体质者活动减少形成"痰湿-少动-脂聚"恶性循环',
     '低IADL': '工具性日常活动能力低下反映综合生活自理能力不足，社会参与度低、饮食管理差加重代谢风险',
@@ -698,16 +679,7 @@ with open(os.path.join(OUTPUT_DIR, 'summary.txt'), 'w', encoding='utf-8') as f:
     f.write("二、离散化阈值\n")
     f.write("-" * 50 + "\n")
     for feat, info in key_continuous.items():
-        threshold = info['阈值']
-        if feat in mm_scaler.feature_names_in_:
-            idx = list(mm_scaler.feature_names_in_).index(feat)
-            min_v = mm_scaler.data_min_[idx]
-            max_v = mm_scaler.data_max_[idx]
-            threshold_orig = threshold * (max_v - min_v) + min_v
-            f.write(f"  {info['标签']}: 阈值={threshold:.4f}(归一化) → "
-                    f"{threshold_orig:.2f}(原始尺度) ({info['来源']})\n")
-        else:
-            f.write(f"  {info['标签']}: 阈值={threshold:.4f} ({info['来源']})\n")
+        f.write(f"  {info['标签']}: 阈值={info['阈值']:.4f} ({info['来源']})\n")
     f.write("  老年(≥60岁): 年龄组≥3\n")
     f.write("  男性: 性别=1\n")
     f.write("  有吸烟: 吸烟史=1\n")
