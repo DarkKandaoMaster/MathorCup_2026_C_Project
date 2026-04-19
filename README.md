@@ -14,7 +14,6 @@ MathorCup_2026_C_Project/
 ├── notes/							# 题解
 ├── output/							# 代码运行结果
 ├── paper/
-│   ├── images/						# 放入论文里的图片
 │   └── MathorCup_C_Paper.docx		# 论文
 ├── src/
 │   ├── q0.py						# 数据预处理
