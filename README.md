@@ -25,7 +25,7 @@ MathorCup_2026_C_Project/
 └── requirements.txt				# 环境依赖列表
 ```
 
-安装 requirements.txt 中的依赖后，cd到本项目的 src/ 目录即可正常运行代码。  
+安装 requirements.txt 中的依赖后，cd到本项目的 src 目录即可正常运行代码。  
 
 比赛期间，本仓库是私有的。我们将会在获奖名单公布后公开该仓库。  
 
