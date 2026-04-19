@@ -224,7 +224,7 @@ ax.set_title('九种体质Logistic回归系数对比', fontsize=14)
 # 在柱子上标注P值
 for i, (_, row) in enumerate(plot_df2.iterrows()):
     ax.text(row['回归系数(Coef)'], i,
-            f" P={row['P值']:.3f}", va='center', fontsize=9)
+            f" P={row['P值']:.3f}", va='center', fontsize=12)
 
 legend_patches = [
     matplotlib.patches.Patch(facecolor='#e74c3c', label='正向（风险因素）'),
