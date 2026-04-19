@@ -29,10 +29,6 @@ requirements.txt 列出了需要的环境。使用安装了这些环境的Python
 
 比赛期间，本仓库是私有的。我们将会在获奖名单公布后公开该仓库。  
 
-<a href="https://github.com/DarkKandaoMaster">@DarkKandaoMaster </a> 
+<a href="https://github.com/DarkKandaoMaster">@DarkKandaoMaster</a> 赞美砍刀！砍刀承包了本项目上上下下除论文外所有东西的编写。一个人，就是一支军团！DarkKandaoMaster是最强的！  
 
-
-
-@Jasmine-mochi
-
-@lonelydrinker
+<a href="https://github.com/lonelydrinker">@lonelydrinker</a> <a href="https://github.com/Jasmine-mochi">@Jasmine-mochi</a> 非常感谢他们对论文做出的贡献！  
