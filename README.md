@@ -25,6 +25,6 @@ MathorCup_2026_C_Project/
 └── requirements.txt				# 环境依赖列表
 ```
 
-比赛期间，本仓库是私有的。我们将会在获奖名单公布后公开该仓库。
+requirements.txt 列出了需要的环境。使用安装了这些环境的Python环境即可正常运行代码。  
 
-requirements.txt 列出了需要的环境。使用
+比赛期间，本仓库是私有的。我们将会在获奖名单公布后公开该仓库。  
