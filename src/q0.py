@@ -4,7 +4,6 @@
 
 import pandas as pd
 from sklearn.preprocessing import MinMaxScaler
-import joblib
 
 input_file = "../data/附件1：样例数据.xlsx"
 raw_output_file = "../data/raw_data.csv"
