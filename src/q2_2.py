@@ -617,6 +617,7 @@ if len(top_combos_viz) > 0:
     ax.axvline(x=1.0, color='red', linestyle='--', linewidth=1.5,
                label='Lift=1（无差异基准）')
     ax.legend(fontsize=10)
+    ax.legend(loc='lower right')
     ax.invert_yaxis()
 
     for bar, sup in zip(bars, support_vals):
