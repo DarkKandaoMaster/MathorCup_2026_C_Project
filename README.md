@@ -27,3 +27,6 @@ MathorCup_2026_C_Project/
 └── requirements.txt				# 环境依赖列表
 ```
 
+在比赛期间，本仓库是私有的；
+
+竞赛时间结束前
