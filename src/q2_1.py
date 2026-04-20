@@ -45,15 +45,15 @@ constitution_scores = [
 
 # 血常规体检指标
 blood_indicators = [
-    'HDL-C（高密度脂蛋白）', 'LDL-C（低密度脂蛋白）', 'TG（甘油三酯）',
-    'TC（总胆固醇）', '空腹血糖', '血尿酸', 'BMI'
+    'HDL-C', 'LDL-C', 'TG',
+    'TC', '空腹血糖', '血尿酸', 'BMI'
 ]
 
 # 中老年人活动量表评分
 activity_scores = [
     'ADL用厕', 'ADL吃饭', 'ADL步行', 'ADL穿衣', 'ADL洗澡', 'ADL总分',
     'IADL购物', 'IADL做饭', 'IADL理财', 'IADL交通', 'IADL服药', 'IADL总分',
-    '活动量表总分（ADL总分+IADL总分）'
+    '活动量表总分'
 ]
 
 # 人口学变量
@@ -345,9 +345,9 @@ print("=" * 70)
 
 # 选取题目中重点关注的关键特征
 key_features = [
-    '痰湿质', 'TC（总胆固醇）', 'TG（甘油三酯）',
-    'LDL-C（低密度脂蛋白）', 'HDL-C（高密度脂蛋白）',
-    '活动量表总分（ADL总分+IADL总分）', 'BMI', '空腹血糖'
+    '痰湿质', 'TC', 'TG',
+    'LDL-C', 'HDL-C',
+    '活动量表总分', 'BMI', '空腹血糖'
 ]
 
 print(f"\n{'特征':<30s} {'低风险':>10s} {'中风险':>10s} {'高风险':>10s}")
@@ -420,9 +420,9 @@ print(f"  -> 图表已保存: output/q2_1/lr_coefficients.png")
 # 保存结果
 # ======================================================================
 # 保存带风险等级的数据
-output_df = df[['体质标签', '痰湿质', '活动量表总分（ADL总分+IADL总分）',
-                'TC（总胆固醇）', 'TG（甘油三酯）', 'LDL-C（低密度脂蛋白）',
-                'HDL-C（高密度脂蛋白）', 'BMI', '空腹血糖',
+output_df = df[['体质标签', '痰湿质', '活动量表总分',
+                'TC', 'TG', 'LDL-C',
+                'HDL-C', 'BMI', '空腹血糖',
                 '高血脂症二分类标签', '预测概率', '风险等级', '风险等级编码']]
 output_df.to_csv(os.path.join(OUTPUT_DIR, 'risk_classification_results.csv'),
                  encoding='utf-8-sig')

@@ -64,7 +64,7 @@ def optimize(s0, ag, asc):
 # ==================== 既然我们都已经做出模型了，所以我也顺便把题目给的数据中278位确诊为“痰湿体质”的患者都找了个方案 ====================
 rows = []
 for idx, r in df_tw.iterrows():
-    s0, ag, asc = r['痰湿质'], int(r['年龄组']), r['活动量表总分（ADL总分+IADL总分）']
+    s0, ag, asc = r['痰湿质'], int(r['年龄组']), r['活动量表总分']
     bp, fs, cost, _ = optimize(s0, ag, asc)
     if bp:
         rows.append({'样本ID': idx, '初始积分': s0, '年龄组': ag, '活动总分': asc,
@@ -85,7 +85,7 @@ TCM_N = {1:'基础调理(1级)',2:'中度调理(2级)',3:'强化调理(3级)'}
 
 for sid in [1, 2, 3]:
     r = df_tw.loc[sid]
-    s0, ag, asc = r['痰湿质'], int(r['年龄组']), r['活动量表总分（ADL总分+IADL总分）']
+    s0, ag, asc = r['痰湿质'], int(r['年龄组']), r['活动量表总分']
     bp, fs, cost, det = optimize(s0, ag, asc)
 
     print(f"\n{'='*60}")
