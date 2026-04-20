@@ -203,10 +203,8 @@ df['风险等级编码'] = df['风险等级'].map(risk_map)
 
 
 # ---------- 绘图: 概率分布与阈值 ----------
-fig, axes = plt.subplots(1, 2, figsize=(16, 6))
-
-# (a) 概率直方图（按实际标签分组）
-ax1 = axes[0]
+# 图1: 概率直方图（按实际标签分组）
+fig1, ax1 = plt.subplots(figsize=(8, 6))
 ax1.hist(prob_negative, bins=40, alpha=0.6, color='#3498db', label='未确诊')
 ax1.hist(prob_positive, bins=40, alpha=0.6, color='#e74c3c', label='确诊')
 ax1.axvline(x=threshold_low, color='orange', linestyle='--', linewidth=2,
@@ -218,8 +216,13 @@ ax1.set_xlabel('预测概率 P(高血脂)')
 ax1.set_ylabel('样本数')
 ax1.legend(fontsize=10, loc='upper left')
 
-# (b) ROC曲线
-ax2 = axes[1]
+plt.tight_layout()
+plt.savefig(os.path.join(OUTPUT_DIR, 'lr_probability_dist.png'), dpi=300, bbox_inches='tight')
+plt.close()
+print(f"\n  -> 图表已保存: output/q2_1/lr_probability_dist.png")
+
+# 图2: ROC曲线
+fig2, ax2 = plt.subplots(figsize=(8, 6))
 ax2.plot(fpr, tpr, 'b-', linewidth=2, label=f'ROC曲线 (AUC={roc_auc_val:.4f})')
 ax2.plot([0, 1], [0, 1], 'k--', alpha=0.3)
 ax2.scatter(fpr[best_idx], tpr[best_idx], color='red', s=100, zorder=5,
@@ -230,9 +233,9 @@ ax2.set_ylabel('真阳性率 (TPR)')
 ax2.legend(fontsize=10)
 
 plt.tight_layout()
-plt.savefig(os.path.join(OUTPUT_DIR, 'lr_probability_roc.png'), dpi=300, bbox_inches='tight')
+plt.savefig(os.path.join(OUTPUT_DIR, 'lr_roc_curve.png'), dpi=300, bbox_inches='tight')
 plt.close()
-print(f"\n  -> 图表已保存: output/q2_1/lr_probability_roc.png")
+print(f"\n  -> 图表已保存: output/q2_1/lr_roc_curve.png")
 
 
 # ======================================================================

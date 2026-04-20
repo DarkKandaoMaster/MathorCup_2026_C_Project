@@ -131,10 +131,8 @@ for feat, coef in selected_lasso.items():
 
 
 # ---------- 绘图: LASSO结果 ----------
-fig, axes = plt.subplots(1, 2, figsize=(18, 7))
-
-# (1a) LASSO非零系数柱状图
-ax1 = axes[0]
+# 图1: LASSO非零系数柱状图
+fig1, ax1 = plt.subplots(figsize=(9, 7))
 color_map = {'血常规': '#e74c3c', '活动量表': '#3498db', '控制变量': '#95a5a6'}
 bar_colors = [color_map['血常规' if f in blood_indicators else
                          '活动量表' if f in activity_scores else '控制变量']
@@ -149,8 +147,13 @@ legend_patches = [Patch(facecolor='#e74c3c', label='血常规指标'),
                   Patch(facecolor='#95a5a6', label='控制变量')]
 ax1.legend(handles=legend_patches, loc='lower right')
 
-# (1b) LASSO正则化路径
-ax2 = axes[1]
+plt.tight_layout()
+plt.savefig(os.path.join(OUTPUT_DIR, 'lasso_coef_bar.png'), dpi=300, bbox_inches='tight')
+plt.close()
+print(f"\n  -> 图表已保存: output/q1_1/lasso_coef_bar.png")
+
+# 图2: LASSO正则化路径
+fig2, ax2 = plt.subplots(figsize=(9, 7))
 alphas_path, coefs_path, _ = lasso_path(X, y_reg, n_alphas=100, max_iter=10000)
 for i, feat in enumerate(all_features):
     color = '#e74c3c' if feat in blood_indicators else \
@@ -168,9 +171,9 @@ ax2.set_ylabel('系数值')
 ax2.legend(fontsize=5.8, ncol=3, loc='best') #？？字体大小居然可以设置成小数的？
 
 plt.tight_layout()
-plt.savefig(os.path.join(OUTPUT_DIR, 'lasso_results.png'), dpi=300, bbox_inches='tight')
+plt.savefig(os.path.join(OUTPUT_DIR, 'lasso_path.png'), dpi=300, bbox_inches='tight')
 plt.close()
-print(f"\n  -> 图表已保存: output/q1_1/lasso_results.png")
+print(f"\n  -> 图表已保存: output/q1_1/lasso_path.png")
 
 
 # ======================================================================
@@ -216,10 +219,8 @@ print(f"前{n_top95}个特征达到95%累积重要性")
 
 
 # ---------- 绘图: RF结果 ----------
-fig, axes = plt.subplots(1, 2, figsize=(18, 7))
-
-# (2a) 特征重要性柱状图
-ax1 = axes[0]
+# 图1: 特征重要性柱状图
+fig1, ax1 = plt.subplots(figsize=(9, 7))
 bar_colors_rf = [color_map['血常规' if f in blood_indicators else
                             '活动量表' if f in activity_scores else '控制变量']
                  for f in rf_importances.index]
@@ -228,8 +229,13 @@ ax1.set_title('随机森林特征重要性（高血脂发病风险预警）', fo
 ax1.set_xlabel('特征重要性')
 ax1.legend(handles=legend_patches, loc='upper right')
 
-# (2b) 累积重要性
-ax2 = axes[1]
+plt.tight_layout()
+plt.savefig(os.path.join(OUTPUT_DIR, 'rf_importance_bar.png'), dpi=300, bbox_inches='tight')
+plt.close()
+print(f"\n  -> 图表已保存: output/q1_1/rf_importance_bar.png")
+
+# 图2: 累积重要性
+fig2, ax2 = plt.subplots(figsize=(9, 7))
 ax2.plot(range(1, len(cumsum) + 1), cumsum.values, 'bo-', markersize=5)
 ax2.axhline(y=0.80, color='red', linestyle='--', alpha=0.7, label='80%累积阈值')
 ax2.axhline(y=0.95, color='green', linestyle='--', alpha=0.7, label='95%累积阈值')
@@ -241,9 +247,9 @@ ax2.set_xticklabels(rf_importances.index, rotation=60, ha='right', fontsize=7)
 ax2.legend()
 
 plt.tight_layout()
-plt.savefig(os.path.join(OUTPUT_DIR, 'rf_results.png'), dpi=300, bbox_inches='tight')
+plt.savefig(os.path.join(OUTPUT_DIR, 'rf_cumulative_importance.png'), dpi=300, bbox_inches='tight')
 plt.close()
-print(f"\n  -> 图表已保存: output/q1_1/rf_results.png")
+print(f"\n  -> 图表已保存: output/q1_1/rf_cumulative_importance.png")
 
 
 # ======================================================================
