@@ -11,6 +11,12 @@ output_file = "../data/preprocessed_data.csv"
 
 # 1. 读取数据，然后立刻把读到的原始数据保存到本地（csv文件）
 df = pd.read_excel(input_file)
+df.rename(columns={"活动量表总分（ADL总分+IADL总分）": "活动量表总分"}, inplace=True)
+df.rename(columns={"HDL-C（高密度脂蛋白）": "HDL-C"}, inplace=True)
+df.rename(columns={"LDL-C（低密度脂蛋白）": "LDL-C"}, inplace=True)
+df.rename(columns={"TG（甘油三酯）": "TG"}, inplace=True)
+df.rename(columns={"TC（总胆固醇）": "TC"}, inplace=True)
+df.rename(columns={"血脂异常分型标签（确诊病例）": "血脂异常分型标签"}, inplace=True)
 df.to_csv(raw_output_file, index=False)
 
 # 2. 定义各类型变量的列名
