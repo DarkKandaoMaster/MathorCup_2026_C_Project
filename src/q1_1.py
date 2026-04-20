@@ -146,7 +146,7 @@ from matplotlib.patches import Patch
 legend_patches = [Patch(facecolor='#e74c3c', label='血常规指标'),
                   Patch(facecolor='#3498db', label='活动量表评分'),
                   Patch(facecolor='#95a5a6', label='控制变量')]
-ax1.legend(handles=legend_patches, loc='lower right')
+ax1.legend(handles=legend_patches, loc='upper left')
 
 plt.tight_layout()
 plt.savefig(os.path.join(OUTPUT_DIR, 'lasso_coef_bar.png'), dpi=300, bbox_inches='tight')

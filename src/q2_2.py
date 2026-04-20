@@ -579,7 +579,7 @@ for f1 in top_features:
             cooccurrence.loc[f1, f2] = (items_high[f1] & items_high[f2]).mean()
 
 fig, ax = plt.subplots(figsize=(8, 6))
-ax.set_box_aspect(0.75)
+ax.set_box_aspect(1)
 im = ax.imshow(cooccurrence.values, cmap='YlOrRd', aspect='auto')
 
 ax.set_xticks(range(len(top_features)))
