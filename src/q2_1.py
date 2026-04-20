@@ -18,6 +18,7 @@ from sklearn.tree import DecisionTreeClassifier, export_text, plot_tree
 from sklearn.model_selection import cross_val_score, StratifiedKFold
 from sklearn.metrics import (roc_curve, auc)
 from sklearn.preprocessing import StandardScaler
+from matplotlib.patches import Patch
 
 random.seed(42)
 np.random.seed(42)
@@ -364,23 +365,28 @@ for feat in key_features:
 
 # ---------- 绘图: 关键特征箱线图 ----------
 n_key = len(key_features)
-fig, axes = plt.subplots(2, 4, figsize=(20, 10))
+fig, axes = plt.subplots(2, 4, figsize=(12, 7))
 axes = axes.flatten()
+colors = ['#2ecc71', '#f39c12', '#e74c3c']
 
 for i, feat in enumerate(key_features):
     ax = axes[i]
     data_by_risk = [df[df['风险等级'] == level][feat].values for level in risk_order]
-    bp = ax.boxplot(data_by_risk, tick_labels=['低风险', '中风险', '高风险'],
-                    patch_artist=True)
-    colors = ['#2ecc71', '#f39c12', '#e74c3c']
+    bp = ax.boxplot(data_by_risk, patch_artist=True)
+    ax.set_xticks([])
     for patch, color in zip(bp['boxes'], colors):
         patch.set_facecolor(color)
         patch.set_alpha(0.6)
-    ax.set_title(feat, fontsize=11)
-    ax.set_ylabel('原始测量值')
+    ax.set_title(feat, fontsize=12)
 
-plt.suptitle('关键特征在各风险等级中的分布', fontsize=14, y=1.02)
-plt.tight_layout()
+legend_patches = [
+    Patch(facecolor='#2ecc71', alpha=0.6, label='低风险'),
+    Patch(facecolor='#f39c12', alpha=0.6, label='中风险'),
+    Patch(facecolor='#e74c3c', alpha=0.6, label='高风险')
+]
+fig.legend(handles=legend_patches, loc='lower center', ncol=3, fontsize=12)
+plt.suptitle('关键特征在各风险等级中的分布', fontsize=16)
+plt.tight_layout(rect=[0, 0.1, 1, 1]) # 调整布局，腾出底部空间给图例 # rect 格式为 [left, bottom, right, top]
 plt.savefig(os.path.join(OUTPUT_DIR, 'feature_boxplot_by_risk.png'), dpi=300, bbox_inches='tight')
 plt.close()
 print(f"\n  -> 图表已保存: output/q2_1/feature_boxplot_by_risk.png")
@@ -404,7 +410,6 @@ ax.set_title('逻辑回归系数（高血脂症风险预警模型）', fontsize=
 ax.set_xlabel('系数值')
 ax.axvline(x=0, color='black', linestyle='-', linewidth=0.5)
 
-from matplotlib.patches import Patch
 legend_patches_lr = [
     Patch(facecolor='#9b59b6', label='体质积分'),
     Patch(facecolor='#e74c3c', label='血常规指标'),

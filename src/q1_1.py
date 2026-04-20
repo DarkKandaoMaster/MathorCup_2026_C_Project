@@ -18,6 +18,7 @@ import random
 from sklearn.linear_model import LassoCV, Lasso, lasso_path
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.model_selection import cross_val_score, StratifiedKFold
+from matplotlib.patches import Patch
 
 random.seed(42)
 np.random.seed(42)
@@ -142,7 +143,6 @@ selected_lasso.plot(kind='barh', color=bar_colors, ax=ax1)
 ax1.set_title('LASSO回归非零系数特征（痰湿体质严重程度）', fontsize=14)
 ax1.set_xlabel('系数值')
 ax1.axvline(x=0, color='black', linestyle='-', linewidth=0.5)
-from matplotlib.patches import Patch
 legend_patches = [Patch(facecolor='#e74c3c', label='血常规指标'),
                   Patch(facecolor='#3498db', label='活动量表评分'),
                   Patch(facecolor='#95a5a6', label='控制变量')]
