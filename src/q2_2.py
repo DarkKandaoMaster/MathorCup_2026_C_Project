@@ -511,16 +511,9 @@ if len(top_itemsets) > 0:
     ax.set_yticks(range(len(labels)))
     ax.set_yticklabels(labels, fontsize=9)
     ax.set_xlabel('支持度 (Support)', fontsize=12)
+    ax.set_xlim(left=0.25)
     ax.set_title('高频特征组合Top-15（Apriori算法）', fontsize=14)
     ax.invert_yaxis()
-
-    from matplotlib.patches import Patch
-    legend_patches = [
-        Patch(facecolor='#3498db', label='2项组合'),
-        Patch(facecolor='#e67e22', label='3项组合'),
-        Patch(facecolor='#e74c3c', label='4项组合')
-    ]
-    ax.legend(handles=legend_patches, fontsize=10)
 
     for bar, val in zip(bars, supports):
         ax.text(bar.get_width() + 0.005, bar.get_y() + bar.get_height()/2,
