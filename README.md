@@ -13,7 +13,7 @@ MathorCup_2026_C_Project/
 ├── notes/							# 题解
 ├── output/							# 代码运行结果
 ├── paper/
-│   └── CMC2603771.pdf				# 最终论文【【【【【记得改一下
+│   └── CMC2603771.pdf				# 最终论文
 ├── src/
 │   ├── q0.py						# 数据预处理
 │   ├── q1_1.py						# 问题1第一小问
