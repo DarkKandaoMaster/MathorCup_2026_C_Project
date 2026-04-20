@@ -535,7 +535,7 @@ if len(top_itemsets) > 0:
 # ---------- 图3: 关联规则散点图 ----------
 if len(rules) > 0:
     fig, ax = plt.subplots(figsize=(8, 6))
-    ax.set_box_aspect(0.75)
+    ax.set_box_aspect(1)
 
     scatter = ax.scatter(
         rules['support'], rules['confidence'],
@@ -557,7 +557,7 @@ if len(rules) > 0:
         cons = ' + '.join(sorted(r['consequents']))
         label = f"{ant[:15]}...→{cons[:10]}"
         ax.annotate(label, (r['support'], r['confidence']),
-                    fontsize=11, alpha=0.8, xytext=(5, 5),
+                    fontsize=10, alpha=0.8, xytext=(5, 5),
                     textcoords='offset points')
 
     plt.tight_layout()
