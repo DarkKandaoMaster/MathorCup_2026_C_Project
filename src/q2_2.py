@@ -482,7 +482,7 @@ bars2 = ax.barh(y_pos + bar_height/2,
                 bar_height, label='非高风险', color='#3498db', alpha=0.8)
 
 ax.set_yticks(y_pos)
-ax.set_yticklabels(features_sorted.index, fontsize=10)
+ax.set_yticklabels(features_sorted.index, fontsize=9)
 ax.set_xlabel('特征频率（出现比例）', fontsize=12)
 ax.set_title('痰湿体质：高风险 vs 非高风险 各特征频率对比', fontsize=14)
 ax.legend(fontsize=11)
@@ -616,17 +616,17 @@ if len(top_combos_viz) > 0:
 
     bars = ax.barh(range(len(combo_labels)), lift_vals, color=colors_bar, alpha=0.85)
     ax.set_yticks(range(len(combo_labels)))
-    ax.set_yticklabels(combo_labels, fontsize=14)
-    ax.set_xlabel('对比Lift（高风险/非高风险支持度比）', fontsize=14)
-    ax.set_title('核心特征组合：对比Lift排名（高风险 vs 非高风险）', fontsize=16)
+    ax.set_yticklabels(combo_labels, fontsize=12)
+    ax.set_xlabel('对比Lift（高风险/非高风险支持度比）', fontsize=12)
+    ax.set_title('核心特征组合：对比Lift排名（高风险 vs 非高风险）', fontsize=14)
     ax.axvline(x=1.0, color='red', linestyle='--', linewidth=1.5,
                label='Lift=1（无差异基准）')
-    ax.legend(fontsize=14, loc='lower right')
+    ax.legend(fontsize=11, loc='lower right')
     ax.invert_yaxis()
 
     for bar, sup in zip(bars, support_vals):
         ax.text(bar.get_width() + 0.02, bar.get_y() + bar.get_height()/2,
-                f'支持度={sup:.3f}', va='center', fontsize=14)
+                f'支持度={sup:.3f}', va='center', fontsize=12)
 
     plt.tight_layout()
     plt.savefig(os.path.join(OUTPUT_DIR, 'combo_lift_comparison.png'),

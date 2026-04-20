@@ -227,9 +227,10 @@ ax1.set_box_aspect(0.75)
 bar_colors_rf = [color_map['血常规' if f in blood_indicators else
                             '活动量表' if f in activity_scores else '控制变量']
                  for f in rf_importances.index]
-rf_importances.plot(kind='barh', color=bar_colors_rf, ax=ax1)
+rf_importances.plot(kind='bar', color=bar_colors_rf, ax=ax1)
 ax1.set_title('随机森林特征重要性（高血脂发病风险预警）', fontsize=14)
-ax1.set_xlabel('特征重要性')
+ax1.set_ylabel('特征重要性') 
+ax1.set_xticklabels(rf_importances.index, rotation=60, ha='right', fontsize=9)
 ax1.legend(handles=legend_patches, loc='upper right')
 
 plt.tight_layout()
@@ -247,7 +248,7 @@ ax2.set_title('特征累积重要性', fontsize=14)
 ax2.set_xlabel('特征数量（按重要性降序）')
 ax2.set_ylabel('累积重要性')
 ax2.set_xticks(range(1, len(cumsum) + 1))
-ax2.set_xticklabels(rf_importances.index, rotation=60, ha='right', fontsize=7)
+ax2.set_xticklabels(rf_importances.index, rotation=60, ha='right', fontsize=9)
 ax2.legend()
 
 plt.tight_layout()
