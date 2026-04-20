@@ -132,7 +132,8 @@ for feat, coef in selected_lasso.items():
 
 # ---------- 绘图: LASSO结果 ----------
 # 图1: LASSO非零系数柱状图
-fig1, ax1 = plt.subplots(figsize=(9, 7))
+fig1, ax1 = plt.subplots(figsize=(8, 6))
+ax1.set_box_aspect(0.75)
 color_map = {'血常规': '#e74c3c', '活动量表': '#3498db', '控制变量': '#95a5a6'}
 bar_colors = [color_map['血常规' if f in blood_indicators else
                          '活动量表' if f in activity_scores else '控制变量']
@@ -153,7 +154,8 @@ plt.close()
 print(f"\n  -> 图表已保存: output/q1_1/lasso_coef_bar.png")
 
 # 图2: LASSO正则化路径
-fig2, ax2 = plt.subplots(figsize=(9, 7))
+fig2, ax2 = plt.subplots(figsize=(8, 6))
+ax2.set_box_aspect(0.75)
 alphas_path, coefs_path, _ = lasso_path(X, y_reg, n_alphas=100, max_iter=10000)
 for i, feat in enumerate(all_features):
     color = '#e74c3c' if feat in blood_indicators else \
@@ -220,7 +222,8 @@ print(f"前{n_top95}个特征达到95%累积重要性")
 
 # ---------- 绘图: RF结果 ----------
 # 图1: 特征重要性柱状图
-fig1, ax1 = plt.subplots(figsize=(9, 7))
+fig1, ax1 = plt.subplots(figsize=(8, 6))
+ax1.set_box_aspect(0.75)
 bar_colors_rf = [color_map['血常规' if f in blood_indicators else
                             '活动量表' if f in activity_scores else '控制变量']
                  for f in rf_importances.index]
@@ -235,7 +238,8 @@ plt.close()
 print(f"\n  -> 图表已保存: output/q1_1/rf_importance_bar.png")
 
 # 图2: 累积重要性
-fig2, ax2 = plt.subplots(figsize=(9, 7))
+fig2, ax2 = plt.subplots(figsize=(8, 6))
+ax2.set_box_aspect(0.75)
 ax2.plot(range(1, len(cumsum) + 1), cumsum.values, 'bo-', markersize=5)
 ax2.axhline(y=0.80, color='red', linestyle='--', alpha=0.7, label='80%累积阈值')
 ax2.axhline(y=0.95, color='green', linestyle='--', alpha=0.7, label='95%累积阈值')
@@ -291,7 +295,8 @@ for i, (feat, row) in enumerate(screening_result.iterrows(), 1):
 
 
 # ---------- 绘图: 综合分析 ----------
-fig, ax = plt.subplots(figsize=(14, 8))
+fig, ax = plt.subplots(figsize=(8, 6))
+ax.set_box_aspect(0.75)
 key_data = screening_result
 x = np.arange(len(key_data))
 width = 0.35

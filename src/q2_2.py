@@ -468,7 +468,8 @@ print("九、可视化")
 print("=" * 70)
 
 # ---------- 图1: 特征频率对比 ----------
-fig, ax = plt.subplots(figsize=(14, 8))
+fig, ax = plt.subplots(figsize=(8, 6))
+ax.set_box_aspect(0.75)
 
 features_sorted = freq_high.sort_values(ascending=True)
 y_pos = np.arange(len(features_sorted))
@@ -496,7 +497,8 @@ print(f"  -> 图1已保存: output/q2_2/feature_frequency_comparison.png")
 # ---------- 图2: Top频繁项集 ----------
 top_itemsets = frequent_itemsets[frequent_itemsets['length'] >= 2].head(15)
 if len(top_itemsets) > 0:
-    fig, ax = plt.subplots(figsize=(14, 8))
+    fig, ax = plt.subplots(figsize=(8, 6))
+    ax.set_box_aspect(0.75)
 
     labels = [' + '.join(sorted(row['itemsets'])) for _, row in top_itemsets.iterrows()]
     supports = top_itemsets['support'].values
@@ -532,7 +534,8 @@ if len(top_itemsets) > 0:
 
 # ---------- 图3: 关联规则散点图 ----------
 if len(rules) > 0:
-    fig, ax = plt.subplots(figsize=(12, 8))
+    fig, ax = plt.subplots(figsize=(8, 6))
+    ax.set_box_aspect(0.75)
 
     scatter = ax.scatter(
         rules['support'], rules['confidence'],
@@ -575,7 +578,8 @@ for f1 in top_features:
         else:
             cooccurrence.loc[f1, f2] = (items_high[f1] & items_high[f2]).mean()
 
-fig, ax = plt.subplots(figsize=(12, 10))
+fig, ax = plt.subplots(figsize=(8, 6))
+ax.set_box_aspect(0.75)
 im = ax.imshow(cooccurrence.values, cmap='YlOrRd', aspect='auto')
 
 ax.set_xticks(range(len(top_features)))
@@ -601,7 +605,8 @@ print(f"  -> 图4已保存: output/q2_2/feature_cooccurrence_heatmap.png")
 # ---------- 图5: 核心组合对比Lift ----------
 top_combos_viz = combo_lift_df.head(12)
 if len(top_combos_viz) > 0:
-    fig, ax = plt.subplots(figsize=(14, 8))
+    fig, ax = plt.subplots(figsize=(8, 6))
+    ax.set_box_aspect(0.75)
 
     combo_labels = top_combos_viz['组合'].values
     lift_vals = top_combos_viz['对比Lift'].replace([np.inf], 10).values

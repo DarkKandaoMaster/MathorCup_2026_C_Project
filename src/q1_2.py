@@ -170,7 +170,8 @@ print(classification_report(y, y_pred, target_names=['正常', '高血脂'], zer
 # ======================================================================
 
 # ---------- 图1: 森林图（Forest Plot）—— OR值及置信区间 ----------
-fig, ax = plt.subplots(figsize=(12, 7))
+fig, ax = plt.subplots(figsize=(8, 6))
+ax.set_box_aspect(0.75)
 
 # 按OR值排序
 plot_df = result_df.sort_values('OR值')
@@ -208,7 +209,8 @@ print(f"\n  -> 图表已保存: output/q1_2/forest_plot.png")
 
 
 # ---------- 图2: 回归系数柱状图 ----------
-fig, ax = plt.subplots(figsize=(12, 7))
+fig, ax = plt.subplots(figsize=(8, 6))
+ax.set_box_aspect(0.75)
 
 plot_df2 = result_df.sort_values('回归系数(Coef)')
 colors = ['#e74c3c' if c > 0 else '#3498db'
@@ -239,7 +241,8 @@ print(f"  -> 图表已保存: output/q1_2/coefficient_bar.png")
 
 
 # ---------- 图3: ROC曲线 ----------
-fig, ax = plt.subplots(figsize=(8, 8))
+fig, ax = plt.subplots(figsize=(8, 6))
+ax.set_box_aspect(0.75)
 
 from sklearn.metrics import roc_curve
 fpr, tpr, thresholds = roc_curve(y, y_pred_prob)
