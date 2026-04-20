@@ -329,11 +329,11 @@ for level in ['低风险', '中风险', '高风险']:
 
 
 # ---------- 绘图: 决策树 ----------
-fig, ax = plt.subplots(figsize=(24, 14))
+fig, ax = plt.subplots(figsize=(17, 6))
 plot_tree(dt, feature_names=list(all_features),
           class_names=['低风险', '中风险', '高风险'],
-          filled=True, rounded=True, fontsize=10, ax=ax)
-ax.set_title('风险分级决策树（特征分层阈值提取）', fontsize=16)
+          filled=True, rounded=True, fontsize=7, ax=ax)
+ax.set_title('风险分级决策树（特征分层阈值提取）', fontsize=14)
 plt.savefig(os.path.join(OUTPUT_DIR, 'decision_tree.png'), dpi=300, bbox_inches='tight')
 plt.close()
 print(f"  -> 图表已保存: output/q2_1/decision_tree.png")
