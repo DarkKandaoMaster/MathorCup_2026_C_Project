@@ -242,7 +242,7 @@ print(f"  -> 图表已保存: output/q1_2/coefficient_bar.png")
 
 # ---------- 图3: ROC曲线 ----------
 fig, ax = plt.subplots(figsize=(8, 6))
-ax.set_box_aspect(1)
+ax.set_box_aspect(0.75)
 
 from sklearn.metrics import roc_curve
 fpr, tpr, thresholds = roc_curve(y, y_pred_prob)

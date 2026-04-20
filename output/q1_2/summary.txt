@@ -29,7 +29,7 @@ Dep. Variable:              高血脂症二分类标签   No. Observations:     
 Model:                          Logit   Df Residuals:                      990
 Method:                           MLE   Df Model:                            9
 Date:                Mon, 20 Apr 2026   Pseudo R-squ.:                0.004225
-Time:                        22:45:59   Log-Likelihood:                -507.80
+Time:                        22:48:17   Log-Likelihood:                -507.80
 converged:                       True   LL-Null:                       -509.95
 Covariance Type:            nonrobust   LLR p-value:                    0.8899
 ==============================================================================
