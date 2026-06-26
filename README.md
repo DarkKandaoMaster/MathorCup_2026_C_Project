@@ -29,6 +29,8 @@ MathorCup_2026_C_Project/
 
 比赛期间，本仓库是私有的。我们将会在获奖名单公布后公开该仓库。  
 
-<a href="https://github.com/DarkKandaoMaster">@DarkKandaoMaster</a> 赞美砍刀！砍刀承包了本项目上上下下除论文外所有东西的编写。一个人，就是一支军团！DarkKandaoMaster是最强的！  
+2026.6.26 获奖名单已公布，我们是全国一等奖。恭喜我们！  
 
-<a href="https://github.com/lonelydrinker">@lonelydrinker</a> <a href="https://github.com/Jasmine-mochi">@Jasmine-mochi</a> 非常感谢他们对论文做出的贡献！有他们在身边，论文就不用操心了。能把一项工作放心地交给别人的感觉真好...  
+<a href="https://github.com/DarkKandaoMaster">@DarkKandaoMaster</a> 砍刀承包了本项目上上下下除论文外所有东西的编写。赞美砍刀。  
+
+<a href="https://github.com/lonelydrinker">@lonelydrinker</a> <a href="https://github.com/Jasmine-mochi">@Jasmine-mochi</a> 他们承包了论文的编写，做出了很大的贡献。谢谢他们。  
